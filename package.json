@@ -1,0 +1,68 @@
+{
+  "main": "index.js",
+  "name": "@naturacosmeticos/node-logger",
+  "author": "Natura Cosméticos <TDDAArquitetura@natura.net>",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@naturacosmeticos/eslint-config-natura": "^1.0.0",
+    "chai": "^4.1.2",
+    "esdoc": "^1.1.0",
+    "esdoc-ecmascript-proposal-plugin": "^1.0.0",
+    "esdoc-node": "^1.0.3",
+    "esdoc-standard-plugin": "^1.0.0",
+    "eslint": "^5.3.0",
+    "eslint-config-natura": "https://s3.amazonaws.com/natura-globalsales-artifacts/libs/eslint-config-natura.tar.gz",
+    "eslint-plugin-import": "^2.13.0",
+    "faker": "^4.1.0",
+    "husky": "^1.0.0-rc.13",
+    "mocha": "^5.2.0",
+    "nyc": "^11.9.0"
+  },
+  "scripts": {
+    "docs": "./node_modules/.bin/esdoc -c .esdoc.json",
+    "lint": "eslint src/ test/",
+    "lint:fix": "eslint --fix src/ test/",
+    "test": "mocha --recursive",
+    "test:watch": "mocha --recursive --watch",
+    "package": "bash package.sh"
+  },
+  "nyc": {
+    "all": true,
+    "check-coverage": true,
+    "per-file": true,
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "test/**/*.js"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
+    "report-dir": "./coverage"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm test",
+      "pre-push": "npm run lint && npm test"
+    }
+  },
+  "dependencies": {
+    "json-stringify-safe": "^5.0.1",
+    "lodash": "^4.17.10",
+    "prettyjson": "^1.2.1"
+  },
+  "contributors": [
+    "Bruno Cartolari <cartola@vizir.com.br>",
+    "Daniel Arthaud <daniel@vizir.com.br>",
+    "Fabrício Campos <fabricio@vizir.com.br>"
+  ],
+  "homepage": "https://github.com/natura-cosmeticos/node-logger#readme",
+  "bugs": "https://github.com/natura-cosmeticos/node-logger/issues",
+  "keywords": [
+    "logger",
+    "troubleshooting"
+  ],
+  "license": "MIT"
+}
