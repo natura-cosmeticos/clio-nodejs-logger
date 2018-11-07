@@ -1,6 +1,6 @@
 {
   "main": "index.js",
-  "name": "@naturacosmeticos/node-logger",
+  "name": "@naturacosmeticos/clio-nodejs-logger",
   "author": "Natura Cosméticos <TDDAArquitetura@natura.net>",
   "version": "1.0.0",
   "devDependencies": {
@@ -58,8 +58,8 @@
     "Daniel Arthaud <daniel@vizir.com.br>",
     "Fabrício Campos <fabricio@vizir.com.br>"
   ],
-  "homepage": "https://github.com/natura-cosmeticos/node-logger#readme",
-  "bugs": "https://github.com/natura-cosmeticos/node-logger/issues",
+  "homepage": "https://github.com/natura-cosmeticos/clio-nodejs-logger#readme",
+  "bugs": "https://github.com/natura-cosmeticos/clio-nodejs-logger/issues",
   "keywords": [
     "logger",
     "troubleshooting"

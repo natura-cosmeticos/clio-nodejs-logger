@@ -1,4 +1,4 @@
-# Node Logger
+# Clio Node.js Logger
 
 ## What For
 
@@ -9,15 +9,15 @@ This module offers a logger with context per request. So it's supporting correla
 Install the package on your project using either npm or yarn:
 
 ```bash
-npm i --save-dev '@naturacosmeticos/node-logger'
+npm i '@naturacosmeticos/clio-nodejs-logger'
 
-yarn add -D '@naturacosmeticos/node-logger'
+yarn add '@naturacosmeticos/clio-nodejs-logger'
 ```
 
 Example:
 
 ```js
-const Logger = require('@naturacosmeticos/node-logger');
+const Logger = require('@naturacosmeticos/clio-nodejs-logger');
 const uuid = require('uuid/v4');
 const context = {
   requestId: uuid(),
@@ -45,7 +45,7 @@ More details of how use this lib can be found in the docs, that can be generated
 
 ## How to contribute
 
-You can contribute submitting [pull requests](https://github.com/natura-cosmeticos/node-logger/pulls).
+You can contribute submitting [pull requests](https://github.com/natura-cosmeticos/clio-nodejs-logger/pulls).
 
 ### Setup
 
