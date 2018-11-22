@@ -1,6 +1,5 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/natura-cosmeticos/clio-nodejs-logger/badge.svg?targetFile=package.json)](https://snyk.io/test/github/natura-cosmeticos/clio-nodejs-logger?targetFile=package.json)
 [![Build Status](https://travis-ci.org/natura-cosmeticos/clio-nodejs-logger.svg?branch=master)](https://travis-ci.org/natura-cosmeticos/clio-nodejs-logger)
-[![Known Vulnerabilities](https://snyk.io/test/github/natura-cosmeticos/clio-nodejs-logger/badge.svg?targetFile=package.json)](https://snyk.io/test/github/natura-cosmeticos/clio-nodejs-logger?targetFile=package.json)
 
 
 # Clio Node.js Logger
