@@ -28,8 +28,7 @@ const context = {
   // Any additional info that you want to include with every record
 };
 const namespace = '';
-const logAllMessages = false;
-const logger = new Logger(context, namespace, logAllMessages);
+const logger = new Logger(context, namespace);
 
 const appLogger = logger.createChildLogger('app');
 appLogger.info('Starting application', { someData });
@@ -45,7 +44,25 @@ By default all log namespaces are disabled. To enable them you must pass the
 This variable follows the same semantics as the
 [debug](http://npmjs.com/package/debug) library on npm.
 
+By default the log object will be truncated* when it exceed 7kb and the log level is not debug. If you need to increase this limit, you can set environment variable `LOG_LIMIT` with the value in bytes (i.e.: 10000 = 10kb) or pass the limit in the Logger constructor: `new Logger(context, namespace, 10000);`
+
+_&ast; when the log object is truncated only the following attributes are logged: `context`, `level`, `message` and `timestamp`._
+
 More details of how use this lib can be found in the docs, that can be generated running `npm run docs` or `yarn docs`.
+
+## Features
+
+Clio has the basic features of a logger library:
+
+  * log levels: you can use `debug`, `error`, `log` and `warn` levels
+  * namespaces: with namespaces you can control what namespaces should be logged using the same semantics as the
+[debug](http://npmjs.com/package/debug)
+
+Beyond those common features Clio has additional features:
+
+  * Context per request: you can use [`domain`](https://nodejs.org/api/domain.html) and then `Logger.current` to use the same logger instance inside in your application. So we can have the same context and additional information in your log as: ` correlationId` and `sessionId`
+  * Limit your log event size: when the log level is not debug the log object will have size limit of 7kb (you can increase passing a new limit in the logger constructor). This limit exists to avoid problems during log parsing and avoid usage of unnecessary resources (i.e.: when developer forgets log call during debugging).
+
 
 ## How to contribute
 

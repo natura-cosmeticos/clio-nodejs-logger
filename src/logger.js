@@ -1,10 +1,11 @@
 const _ = require('lodash');
 const domain = require('domain');
-const os = require('os');
 const prettyjson = require('prettyjson');
 const stringify = require('json-stringify-safe');
 
 const isEnabled = require('./is-enabled');
+const Serializer = require('./serializer');
+const loggerLevels = require('./levels');
 
 /**
  * Default options for prettyjson
@@ -12,16 +13,6 @@ const isEnabled = require('./is-enabled');
 const PrettyJsonDefaultOptions = Object.freeze({
   defaultIndentation: 4,
   inlineArrays: 1,
-});
-
-/**
- * Default options for logger levels
- */
-const loggerLevels = Object.freeze({
-  debug: 'debug',
-  error: 'error',
-  log: 'log',
-  warn: 'warn',
 });
 
 /**
@@ -48,8 +39,9 @@ class Logger {
    * @param {Object} context - custom attributes to be logged
    * @param {string} namespace - the logger namespace
    * @param {string} logPatterns - Patterns of namespaces to be logged
+   * @param {number} logLimit - Patterns of namespaces to be logged
    */
-  constructor(context, namespace = '', logPatterns = process.env.LOG_NAMESPACES) {
+  constructor(context, namespace = '', logPatterns = process.env.LOG_NAMESPACES, logLimit = process.env.LOG_LIMIT) {
     /** @private */
     this.contextData = {
       context,
@@ -62,11 +54,17 @@ class Logger {
     /** @private */
     this.logPatterns = logPatterns || '';
 
+    this.logLimit = logLimit || 7000;
+
     /** @private */
     this.format = process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify;
 
     /** Alias for info */
     this.log = this.info;
+
+    this.serializer = new Serializer(
+      this.contextData, this.namespace, this.logLimit,
+    );
   }
 
   /**
@@ -76,7 +74,7 @@ class Logger {
   createChildLogger(namespace) {
     const prefix = this.namespace ? `${this.namespace}:` : '';
 
-    return new Logger(this.contextData, `${prefix}${namespace}`, this.logPatterns);
+    return new Logger(this.contextData.context, `${prefix}${namespace}`, this.logPatterns);
   }
 
   /**
@@ -126,21 +124,6 @@ class Logger {
   }
 
   /**
-   * @private
-   */
-  logEvent(message, additionalArguments, level) {
-    return {
-      ...additionalArguments,
-      ...this.contextData,
-      level,
-      message,
-      namespace: this.namespace,
-      timestamp: new Date().toISOString(),
-      uptime: os.uptime(),
-    };
-  }
-
-  /**
    *  @private
    */
   output(message, additionalArguments, level = loggerLevels.log) {
@@ -148,7 +131,9 @@ class Logger {
       return;
     }
 
-    const event = this.logEvent(message, additionalArguments, level);
+    const event = this.serializer.serialize(
+      message, additionalArguments, level,
+    );
 
     console.log(`${this.format(event)}`); // eslint-disable-line no-console
   }
