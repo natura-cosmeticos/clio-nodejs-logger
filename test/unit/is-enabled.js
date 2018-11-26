@@ -10,7 +10,6 @@ describe('Log Enable', () => {
   context('with an * pattern', () => {
     it('enables all logs', () => {
       assert.ok(isEnabled(faker.random.words(), '*'));
-      assert.ok(isEnabled(faker.random.words(), '*'));
     });
 
     context('and an exclude pattern', () => {
