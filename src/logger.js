@@ -6,6 +6,7 @@ const stringify = require('json-stringify-safe');
 const isEnabled = require('./is-enabled');
 const Serializer = require('./serializer');
 const loggerLevels = require('./levels');
+const logLevelFilter = require('./log-level-filter');
 
 /**
  * Default options for prettyjson
@@ -41,7 +42,7 @@ class Logger {
    * @param {string} logPatterns - Patterns of namespaces to be logged
    * @param {number} logLimit - Patterns of namespaces to be logged
    */
-  constructor(context, namespace = '', logPatterns = process.env.LOG_NAMESPACES, logLimit = process.env.LOG_LIMIT) {
+  constructor(context, namespace = '', logPatterns = process.env.LOG_NAMESPACES, logLimit = process.env.LOG_LIMIT, logLevel = loggerLevels.debug) {
     /** @private */
     this.contextData = {
       context,
@@ -54,7 +55,11 @@ class Logger {
     /** @private */
     this.logPatterns = logPatterns || '';
 
+    /** @private */
     this.logLimit = logLimit || 7000;
+
+    /** @private */
+    this.logLevel = logLevel;
 
     /** @private */
     this.format = process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify;
@@ -126,21 +131,22 @@ class Logger {
   /**
    *  @private
    */
-  output(message, additionalArguments, level = loggerLevels.log) {
-    if (!this.isEnabled()) {
-      return;
-    }
+  output(message, additionalArguments, outputType = loggerLevels.log) {
+    if (this.shouldSupressOutput(outputType)) return;
 
     const event = this.serializer.serialize(
-      message, additionalArguments, level,
+      message, additionalArguments, outputType,
     );
 
     console.log(`${this.format(event)}`); // eslint-disable-line no-console
   }
 
   /** @private */
-  isEnabled() {
-    return !Logger.supressOutput && isEnabled(this.namespace, this.logPatterns);
+  shouldSupressOutput(outputType) {
+    return [
+      logLevelFilter({ logLevel: this.logLevel, outputType }),
+      isEnabled(this.namespace, this.logPatterns),
+    ].some(response => response !== true);
   }
 
   /**
