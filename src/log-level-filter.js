@@ -2,6 +2,7 @@ const {
   debug, error, warn, log,
 } = require('./levels');
 
+/** @private */
 const LOG_LEVEL = Object.freeze([debug, error, warn, log]);
 
 /** @private */
@@ -21,8 +22,10 @@ const levelOutputMatchers = [
 ];
 
 /** @private */
-module.exports = ({ logLevel, outputType }) => (
-  levelOutputMatchers.some(matcher => matcher({ logLevel, outputType }))
-);
+function logLevelFilter({ logLevel, outputType }) {
+  return levelOutputMatchers.some(matcher => matcher({ logLevel, outputType }));
+}
 
-module.exports.LOG_LEVEL = LOG_LEVEL;
+logLevelFilter.LOG_LEVEL = LOG_LEVEL;
+
+module.exports = logLevelFilter;

@@ -29,6 +29,27 @@ const prettyPrint = (event) => {
   return `\n${header}\n\t${body}\n\n`;
 };
 
+function normalizeArguments(options, extraParameters) {
+  if (!extraParameters.length) return options;
+
+  const [namespace, logPatterns, logLimit, logLevel] = extraParameters;
+
+  return {
+    context: options,
+    logLevel,
+    logLimit,
+    logPatterns,
+    namespace,
+  };
+}
+
+const DEFAULT_LOGGER_ATTRIBUTES = {
+  logLevel: process.env.LOG_LEVEL || loggerLevels.debug,
+  logLimit: process.env.LOG_LIMIT || 7000,
+  logPatterns: process.env.LOG_NAMESPACES || '*',
+  namespace: '',
+};
+
 /**
  * Logger class implementing the recommended log structure
  * @example
@@ -39,37 +60,24 @@ class Logger {
    * Initialize a Logger instance, using prettyjson when LOGS_PRETTY_PRINT is set
    * @param {Object} context - custom attributes to be logged
    * @param {string} namespace - the logger namespace
-   * @param {string} logPatterns - Patterns of namespaces to be logged
+   * @param {string} logPatterns - Patterns of namespareturn new Logger({});ces to be logged
    * @param {number} logLimit - Patterns of namespaces to be logged
    */
-  constructor(context, namespace = '', logPatterns = process.env.LOG_NAMESPACES, logLimit = process.env.LOG_LIMIT, logLevel = loggerLevels.debug) {
-    /** @private */
-    this.contextData = {
-      context,
-      name: process.env.APP_NAME,
-    };
+  constructor(options, ...extraParameters) {
+    const {
+      context, namespace, logPatterns, logLimit, logLevel,
+    } = normalizeArguments(options, extraParameters);
 
-    /** @private */
-    this.namespace = namespace;
-
-    /** @private */
-    this.logPatterns = logPatterns || '';
-
-    /** @private */
-    this.logLimit = logLimit || 7000;
-
-    /** @private */
-    this.logLevel = logLevel;
-
-    /** @private */
-    this.format = process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify;
-
-    /** Alias for info */
-    this.log = this.info;
-
-    this.serializer = new Serializer(
-      this.contextData, this.namespace, this.logLimit,
-    );
+    Object.assign(this, DEFAULT_LOGGER_ATTRIBUTES, {
+      contextData: { context, name: process.env.APP_NAME },
+      format: process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify,
+      log: this.info,
+      logLevel,
+      logLimit,
+      logPatterns,
+      namespace,
+      serializer: new Serializer({ context, name: process.env.APP_NAME }, namespace, logLimit),
+    });
   }
 
   /**
@@ -149,6 +157,10 @@ class Logger {
     ].some(response => response !== true);
   }
 
+  static nonContextualLogger() {
+    return new Logger({});
+  }
+
   /**
    * Returns the current Logger instance in the active domain
    * or an instance without contextual information if there is no active domain.
@@ -161,14 +173,5 @@ class Logger {
     return domain.active.logger;
   }
 }
-
-/** @private */
-Logger.nonContextualLogger = new Logger({});
-
-/**
- * Suppress the logger output if set to true,
- * the main use case of this property is hiding logs during integration tests.
- */
-Logger.supressOutput = false;
 
 module.exports = Logger;
