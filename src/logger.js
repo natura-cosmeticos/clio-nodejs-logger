@@ -30,6 +30,8 @@ const prettyPrint = (event) => {
 };
 
 function normalizeArguments(options, extraParameters) {
+  if (!options) return {};
+
   if (!extraParameters.length) return options;
 
   const [namespace, logPatterns, logLimit, logLevel] = extraParameters;
@@ -155,10 +157,6 @@ class Logger {
       logLevelFilter({ logLevel: this.logLevel, outputType }),
       isEnabled(this.namespace, this.logPatterns),
     ].some(response => response !== true);
-  }
-
-  static nonContextualLogger() {
-    return new Logger({});
   }
 
   /**
