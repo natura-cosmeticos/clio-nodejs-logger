@@ -53,7 +53,7 @@ function normalizeArguments(options, extraParameters) {
 const DEFAULT_LOGGER_ATTRIBUTES = {
   logLevel: process.env.LOG_LEVEL || loggerLevels.error,
   logLimit: process.env.LOG_LIMIT || 7000,
-  logPatterns: process.env.LOG_NAMESPACES || '*',
+  logPatterns: process.env.LOG_NAMESPACES || undefined,
   namespace: '',
 };
 
@@ -64,7 +64,7 @@ const DEFAULT_LOGGER_ATTRIBUTES = {
  *  context: { api: 'myAwesomeAPI' }
  *  logLevel: 'error',
  *  logLimit: 7000,
- *  logPatterns: '*',
+ *  logPatterns: '',
  *  namespace: ''
  * });
  *
@@ -73,7 +73,7 @@ const DEFAULT_LOGGER_ATTRIBUTES = {
  * apiLogger.error('Bad request', { errorData })
  */
 class Logger {
-   /**
+  /**
    * Initialize a Logger instance, using prettyjson when LOGS_PRETTY_PRINT is set
    * @param {Object} options - A collection of options
    * @param {Any} [options.context=undefined] - Logger context, accepts any value type
@@ -81,7 +81,7 @@ class Logger {
    * debug, error, warn, log
    * @param {Number} [options.logLimit=7000] - Number in bytes for maximum size of
    * data when using `logLevel:debug`
-   * @param {String} [options.logPatterns='*'] - Pattern to log. `logPatterns: 'api,database'`
+   * @param {String} [options.logPatterns=undefined] - Pattern to log. `logPatterns: 'api,database'`
    * will match and output any log with "api" or "database" in thier namespaces
    *
    * You can also exclude specific debuggers by prefixing them with a "-" character
@@ -98,7 +98,7 @@ class Logger {
    *
    * It will not be possible to use that method on next major release
    */
-   constructor(options, ...extraParameters) {
+  constructor(options, ...extraParameters) {
     const {
       context, namespace, logPatterns, logLimit, logLevel,
     } = normalizeArguments(options, extraParameters);
