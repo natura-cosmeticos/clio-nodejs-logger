@@ -21,7 +21,10 @@ const levelOutputMatchers = [
   },
 ];
 
-/** @private */
+/**
+ * It matches logLevel and outputType and returns if log request
+ * should or should not be logged
+ * @private */
 function logLevelFilter({ logLevel, outputType }) {
   return levelOutputMatchers.some(matcher => matcher({ logLevel, outputType }));
 }

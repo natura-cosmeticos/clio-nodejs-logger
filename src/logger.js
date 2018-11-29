@@ -29,6 +29,7 @@ const prettyPrint = (event) => {
   return `\n${header}\n\t${body}\n\n`;
 };
 
+/** @private */
 function normalizeArguments(options, extraParameters) {
   if (!options) return {};
 
@@ -45,27 +46,59 @@ function normalizeArguments(options, extraParameters) {
   };
 }
 
+/**
+ * default values for Logger instance
+ * @private
+ */
 const DEFAULT_LOGGER_ATTRIBUTES = {
-  logLevel: process.env.LOG_LEVEL || loggerLevels.debug,
+  logLevel: process.env.LOG_LEVEL || loggerLevels.error,
   logLimit: process.env.LOG_LIMIT || 7000,
   logPatterns: process.env.LOG_NAMESPACES || '*',
   namespace: '',
 };
 
 /**
- * Logger class implementing the recommended log structure
+ * Basic Logger usage
  * @example
- * const logger = new Logger({ correlationId, sessionId });
+ * const apiLogger = new Logger({
+ *  context: { api: 'myAwesomeAPI' }
+ *  logLevel: 'error',
+ *  logLimit: 7000,
+ *  logPatterns: '*',
+ *  namespace: ''
+ * });
+ *
+ * apiLogger.warn('Before doing any requests check your connection')
+ * apiLogger.info('GET request for 127.0.0.1/myAwesomeAPI')
+ * apiLogger.error('Bad request', { errorData })
  */
 class Logger {
-  /**
+   /**
    * Initialize a Logger instance, using prettyjson when LOGS_PRETTY_PRINT is set
-   * @param {Object} context - custom attributes to be logged
-   * @param {string} namespace - the logger namespace
-   * @param {string} logPatterns - Patterns of namespareturn new Logger({});ces to be logged
-   * @param {number} logLimit - Patterns of namespaces to be logged
+   * @param {Object} options - A collection of options
+   * @param {Any} [options.context=undefined] - Logger context, accepts any value type
+   * @param {String} [options.logLevel='error'] - Logger level, available options:
+   * debug, error, warn, log
+   * @param {Number} [options.logLimit=7000] - Number in bytes for maximum size of
+   * data when using `logLevel:debug`
+   * @param {String} [options.logPatterns='*'] - Pattern to log. `logPatterns: 'api,database'`
+   * will match and output any log with "api" or "database" in thier namespaces
+   *
+   * You can also exclude specific debuggers by prefixing them with a "-" character
+   * `logPatterns: 'api,-api:myAwesomeApi'`
+   * @param {String} options.namespace - Logger namespace
+   *
+   * @param  {...any} extraParameters - DEPRECATED, Prefer usage of options object
+   *
+   * It's possible to create logger using the following syntax:
+   *
+   * `new Logger(context, namespace, logPatterns, logLimit, logLevel)`
+   *
+   * However, this method is deprecated prior to object options
+   *
+   * It will not be possible to use that method on next major release
    */
-  constructor(options, ...extraParameters) {
+   constructor(options, ...extraParameters) {
     const {
       context, namespace, logPatterns, logLimit, logLevel,
     } = normalizeArguments(options, extraParameters);
@@ -84,7 +117,13 @@ class Logger {
 
   /**
    * Returns a new logger with the same contextual information and a child namespace
-   * @param {string} namespace - the namespace to be appended to the current one in the new instance
+   * @param {string} namespace - namespace to be appended to the current one in the new instance
+   *
+   * `appLogger = new Logger({ namespace: 'docs', ...otherOptions }) // namespace: docs`
+   *
+   * `childLogger = appLogger.createChildLogger('child') // namespace: docs:child`
+   *
+   * @returns Logger
    */
   createChildLogger(namespace) {
     const prefix = this.namespace ? `${this.namespace}:` : '';
@@ -130,7 +169,15 @@ class Logger {
 
   /**
    * Set sessionId on context in contextData
+   *
+   * It's preferable to set Logger sessionId as a context attribute upon creation
+   *
+   * `new Logger({ context: { sessionId: uuid(), ...otherParameters } })`
+   *
+   * This method will be removed on the next major release
+   *
    * @param {uuid} sessionId
+   * @deprecated
    */
   setSessionId(sessionId) {
     this.contextData.context = Object.assign(
@@ -138,9 +185,7 @@ class Logger {
     );
   }
 
-  /**
-   *  @private
-   */
+  /** @private */
   output(message, additionalArguments, outputType = loggerLevels.log) {
     if (this.shouldSupressOutput(outputType)) return;
 
