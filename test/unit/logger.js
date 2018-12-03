@@ -116,7 +116,7 @@ describe('Logger', () => {
     });
 
     it('returns domain.logger when running inside a domain', () => {
-      const domainLogger = new Logger({ namespace: 'domain:logger' });
+      const domainLogger = new Logger({ namespace: lorem.word() });
       const currentDomain = domain.create();
 
       currentDomain.logger = domainLogger;
