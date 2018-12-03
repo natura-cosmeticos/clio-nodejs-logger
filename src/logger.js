@@ -6,6 +6,7 @@ const stringify = require('json-stringify-safe');
 const isEnabled = require('./is-enabled');
 const Serializer = require('./serializer');
 const loggerLevels = require('./levels');
+const logLevelFilter = require('./log-level-filter');
 
 /**
  * Default options for prettyjson
@@ -28,48 +29,101 @@ const prettyPrint = (event) => {
   return `\n${header}\n\t${body}\n\n`;
 };
 
+/** @private */
+function normalizeArguments(options, extraParameters) {
+  if (!options) return {};
+
+  if (!extraParameters.length) return options;
+
+  const [namespace, logPatterns, logLimit, logLevel] = extraParameters;
+
+  return {
+    context: options,
+    logLevel,
+    logLimit,
+    logPatterns,
+    namespace,
+  };
+}
+
 /**
- * Logger class implementing the recommended log structure
+ * default values for Logger instance
+ * @private
+ */
+const DEFAULT_LOGGER_ATTRIBUTES = {
+  logLevel: process.env.LOG_LEVEL || loggerLevels.error,
+  logLimit: process.env.LOG_LIMIT || 7000,
+  logPatterns: process.env.LOG_NAMESPACES || undefined,
+  namespace: '',
+};
+
+/**
+ * Basic Logger usage
  * @example
- * const logger = new Logger({ correlationId, sessionId });
+ * const apiLogger = new Logger({
+ *  context: { api: 'myAwesomeAPI' }
+ *  logLevel: 'error',
+ *  logLimit: 7000,
+ *  logPatterns: '',
+ *  namespace: ''
+ * });
+ *
+ * apiLogger.warn('Before doing any requests check your connection')
+ * apiLogger.info('GET request for 127.0.0.1/myAwesomeAPI')
+ * apiLogger.error('Bad request', { errorData })
  */
 class Logger {
   /**
    * Initialize a Logger instance, using prettyjson when LOGS_PRETTY_PRINT is set
-   * @param {Object} context - custom attributes to be logged
-   * @param {string} namespace - the logger namespace
-   * @param {string} logPatterns - Patterns of namespaces to be logged
-   * @param {number} logLimit - Patterns of namespaces to be logged
+   * @param {Object} options - A collection of options
+   * @param {Any} [options.context=undefined] - Logger context, accepts any value type
+   * @param {String} [options.logLevel='error'] - Logger level, available options:
+   * debug, error, warn, log
+   * @param {Number} [options.logLimit=7000] - Number in bytes for maximum size of
+   * data when using `logLevel:debug`
+   * @param {String} [options.logPatterns=undefined] - Pattern to log. `logPatterns: 'api,database'`
+   * will match and output any log with "api" or "database" in thier namespaces
+   *
+   * You can also exclude specific debuggers by prefixing them with a "-" character
+   * `logPatterns: 'api,-api:myAwesomeApi'`
+   * @param {String} options.namespace - Logger namespace
+   *
+   * @param  {...any} extraParameters - DEPRECATED, Prefer usage of options object
+   *
+   * It's possible to create logger using the following syntax:
+   *
+   * `new Logger(context, namespace, logPatterns, logLimit, logLevel)`
+   *
+   * However, this method is deprecated prior to object options
+   *
+   * It will not be possible to use that method on next major release
    */
-  constructor(context, namespace = '', logPatterns = process.env.LOG_NAMESPACES, logLimit = process.env.LOG_LIMIT) {
-    /** @private */
-    this.contextData = {
-      context,
-      name: process.env.APP_NAME,
-    };
+  constructor(options, ...extraParameters) {
+    const {
+      context, namespace, logPatterns, logLimit, logLevel,
+    } = normalizeArguments(options, extraParameters);
 
-    /** @private */
-    this.namespace = namespace;
-
-    /** @private */
-    this.logPatterns = logPatterns || '';
-
-    this.logLimit = logLimit || 7000;
-
-    /** @private */
-    this.format = process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify;
-
-    /** Alias for info */
-    this.log = this.info;
-
-    this.serializer = new Serializer(
-      this.contextData, this.namespace, this.logLimit,
-    );
+    Object.assign(this, DEFAULT_LOGGER_ATTRIBUTES, {
+      contextData: { context, name: process.env.APP_NAME },
+      format: process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify,
+      log: this.info,
+      logLevel,
+      logLimit,
+      logPatterns,
+      namespace,
+      serializer: new Serializer({ context, name: process.env.APP_NAME }, namespace, logLimit),
+    });
   }
 
   /**
    * Returns a new logger with the same contextual information and a child namespace
-   * @param {string} namespace - the namespace to be appended to the current one in the new instance
+   * @param {string} namespace - namespace to be appended to the current one in the new instance
+   *
+   * `appLogger = new Logger({ namespace: 'docs', ...otherOptions }) // namespace: docs`
+   *
+   * `childLogger = appLogger.createChildLogger('child') // namespace: docs:child`
+   *
+   * @returns Logger
    */
   createChildLogger(namespace) {
     const prefix = this.namespace ? `${this.namespace}:` : '';
@@ -115,7 +169,15 @@ class Logger {
 
   /**
    * Set sessionId on context in contextData
+   *
+   * It's preferable to set Logger sessionId as a context attribute upon creation
+   *
+   * `new Logger({ context: { sessionId: uuid(), ...otherParameters } })`
+   *
+   * This method will be removed on the next major release
+   *
    * @param {uuid} sessionId
+   * @deprecated
    */
   setSessionId(sessionId) {
     this.contextData.context = Object.assign(
@@ -123,24 +185,23 @@ class Logger {
     );
   }
 
-  /**
-   *  @private
-   */
-  output(message, additionalArguments, level = loggerLevels.log) {
-    if (!this.isEnabled()) {
-      return;
-    }
+  /** @private */
+  output(message, additionalArguments, outputType = loggerLevels.log) {
+    if (this.shouldSupressOutput(outputType)) return;
 
     const event = this.serializer.serialize(
-      message, additionalArguments, level,
+      message, additionalArguments, outputType,
     );
 
     console.log(`${this.format(event)}`); // eslint-disable-line no-console
   }
 
   /** @private */
-  isEnabled() {
-    return !Logger.supressOutput && isEnabled(this.namespace, this.logPatterns);
+  shouldSupressOutput(outputType) {
+    return [
+      logLevelFilter({ logLevel: this.logLevel, outputType }),
+      isEnabled(this.namespace, this.logPatterns),
+    ].some(response => response !== true);
   }
 
   /**
@@ -155,14 +216,5 @@ class Logger {
     return domain.active.logger;
   }
 }
-
-/** @private */
-Logger.nonContextualLogger = new Logger({});
-
-/**
- * Suppress the logger output if set to true,
- * the main use case of this property is hiding logs during integration tests.
- */
-Logger.supressOutput = false;
 
 module.exports = Logger;

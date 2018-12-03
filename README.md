@@ -23,17 +23,18 @@ Example:
 ```js
 const Logger = require('@naturacosmeticos/clio-nodejs-logger');
 const uuid = require('uuid/v4');
-const context = {
-  requestId: uuid(),
-  // Any additional info that you want to include with every record
-};
-const namespace = '';
-const logger = new Logger(context, namespace);
 
-const appLogger = logger.createChildLogger('app');
+const appLogger = new Logger({
+  context: {
+    requestId: uuid(),
+    // Any additional info that you want to include with every record
+  },
+  namespace: 'appLogger'
+})
+
 appLogger.info('Starting application', { someData });
 
-const httpLogger = logger.createChildLogger('http');
+const httpLogger = appLogger.createChildLogger('http');
 httpLogger.info('Start GET on /', { someData });
 httpLogger.error('Error processing GET on /', { someData });
 ```
@@ -41,14 +42,17 @@ httpLogger.error('Error processing GET on /', { someData });
 By default all log namespaces are disabled. To enable them you must pass the
 `LOG_NAMESPACES` environment variable with the logging patterns you want to show.
 
+If you need to filter your logs by level you can either use `LOG_LEVEL` environment variable or pass the option into
+its contructor when instantiating `new Logger({ ...options, logLevel: 'info' })`.
+
 This variable follows the same semantics as the
 [debug](http://npmjs.com/package/debug) library on npm.
 
-By default the log object will be truncated* when it exceed 7kb and the log level is not debug. If you need to increase this limit, you can set environment variable `LOG_LIMIT` with the value in bytes (i.e.: 10000 = 10kb) or pass the limit in the Logger constructor: `new Logger(context, namespace, 10000);`
+By default the log object will be truncated* when it exceed 7kb and the log level is not debug. If you need to increase this limit, you can set environment variable `LOG_LIMIT` with the value in bytes (i.e.: 10000 = 10kb) or pass the limit in the Logger constructor: `new Logger({ ...options, logLimit: 10000 });`
 
 _&ast; when the log object is truncated only the following attributes are logged: `context`, `level`, `message` and `timestamp`._
 
-More details of how use this lib can be found in the docs, that can be generated running `npm run docs` or `yarn docs`.
+Available `options` and details of how use this lib can be found in the docs, that can be generated running `npm run docs` or `yarn docs`.
 
 ## Features
 
