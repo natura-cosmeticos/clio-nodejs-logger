@@ -1,25 +1,35 @@
 /** @private */
-function match(namespace, pattern) {
-  const regex = new RegExp(pattern.replace('*', '.*'));
-
+function matchPattern(pattern) {
   if (pattern === '') return false;
 
-  return regex.test(namespace);
+  return new RegExp(pattern.replace('*', '.*')).test(this.namespace);
+}
+
+function createPatterns({ excludingPatterns, includingPatterns }, nextPattern) {
+  if (nextPattern.startsWith('-')) {
+    return {
+      excludingPatterns: excludingPatterns.concat(nextPattern.substring(1)),
+      includingPatterns,
+    };
+  }
+
+  return {
+    excludingPatterns,
+    includingPatterns: includingPatterns.concat(nextPattern),
+  };
 }
 
 /** @private */
 module.exports = (namespace, enabledNamespaces) => {
-  const patterns = enabledNamespaces.split(',');
-  const excludingPatterns = patterns.filter(pattern => pattern.startsWith('-'));
-  const includingPatterns = patterns.filter(pattern => !pattern.startsWith('-'));
+  if (!enabledNamespaces) return false;
 
-  if (excludingPatterns.some(pattern => match(namespace, pattern.substring(1)))) {
-    return false;
-  }
+  const { excludingPatterns, includingPatterns } = enabledNamespaces
+    .split(',')
+    .reduce(createPatterns, { excludingPatterns: [], includingPatterns: [] });
 
-  if (includingPatterns.some(pattern => match(namespace, pattern))) {
-    return true;
-  }
+  if (excludingPatterns.some(matchPattern, { namespace })) return false;
+
+  if (includingPatterns.some(matchPattern, { namespace })) return true;
 
   return false;
 };

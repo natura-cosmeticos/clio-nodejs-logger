@@ -10,7 +10,6 @@ describe('Log Enable', () => {
   context('with an * pattern', () => {
     it('enables all logs', () => {
       assert.ok(isEnabled(faker.random.words(), '*'));
-      assert.ok(isEnabled(faker.random.words(), '*'));
     });
 
     context('and an exclude pattern', () => {
@@ -78,6 +77,14 @@ describe('Log Enable', () => {
       ];
 
       assert.ok(namespaces.every(ns => !isEnabled(ns, enabledNamespaces)));
+    });
+  });
+
+  context('with an undefined pattern', () => {
+    it('disables all messages', () => {
+      const namespace = faker.lorem.word();
+
+      assert.strictEqual(isEnabled(namespace), false);
     });
   });
 });
