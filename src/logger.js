@@ -210,7 +210,7 @@ class Logger {
    */
   static current() {
     if (!domain.active) {
-      return Logger.nonContextualLogger;
+      return new Logger();
     }
 
     return domain.active.logger;

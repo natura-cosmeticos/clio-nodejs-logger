@@ -1,6 +1,7 @@
 const assert = require('assert').strict;
 const { spy } = require('sinon');
 const { lorem, random } = require('faker');
+const domain = require('domain');
 
 const Logger = require('../../src/logger');
 const loggerLevels = require('../../src/levels');
@@ -61,7 +62,7 @@ describe('Logger', () => {
     });
   });
 
-  it('creates an instance of logger using legacy mode', () => {
+  context('creating an instance of logger using legacy mode', () => {
     const {
       loggerContext,
       loggerLogLevel,
@@ -85,7 +86,7 @@ describe('Logger', () => {
     it('has correct namespace', () => assert.equal(legacyLogger.namespace, loggerNamespace));
   });
 
-  it('creates an instance of logger using object options mode', () => {
+  context('creating an instance of logger using object options mode', () => {
     const {
       loggerContext,
       loggerLogLevel,
@@ -107,5 +108,22 @@ describe('Logger', () => {
     it('has correct logLimit', () => assert.equal(logger.logLimit, loggerLogLimit));
     it('has correct logPatterns', () => assert.equal(logger.logPatterns, loggerPattern));
     it('has correct namespace', () => assert.equal(logger.namespace, loggerNamespace));
+  });
+
+  context('requesting current context', () => {
+    it('returns an instance without context', () => {
+      assert.ok(Logger.current() instanceof Logger);
+    });
+
+    it('returns domain.logger when running inside a domain', () => {
+      const domainLogger = new Logger({ namespace: lorem.word() });
+      const currentDomain = domain.create();
+
+      currentDomain.logger = domainLogger;
+
+      currentDomain.run(() => {
+        assert.deepEqual(Logger.current(), domainLogger);
+      });
+    });
   });
 });
