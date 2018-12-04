@@ -9,6 +9,8 @@ function match(namespace, pattern) {
 
 /** @private */
 module.exports = (namespace, enabledNamespaces) => {
+  if (!enabledNamespaces) return false;
+
   const patterns = enabledNamespaces.split(',');
   const excludingPatterns = patterns.filter(pattern => pattern.startsWith('-'));
   const includingPatterns = patterns.filter(pattern => !pattern.startsWith('-'));
