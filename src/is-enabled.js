@@ -21,6 +21,8 @@ function createPatterns({ excludingPatterns, includingPatterns }, nextPattern) {
 
 /** @private */
 module.exports = (namespace, enabledNamespaces) => {
+  if (!enabledNamespaces) return false;
+
   const { excludingPatterns, includingPatterns } = enabledNamespaces
     .split(',')
     .reduce(createPatterns, { excludingPatterns: [], includingPatterns: [] });

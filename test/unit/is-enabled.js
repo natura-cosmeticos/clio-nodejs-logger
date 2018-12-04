@@ -79,4 +79,12 @@ describe('Log Enable', () => {
       assert.ok(namespaces.every(ns => !isEnabled(ns, enabledNamespaces)));
     });
   });
+
+  context('with an undefined pattern', () => {
+    it('disables all messages', () => {
+      const namespace = faker.lorem.word();
+
+      assert.strictEqual(isEnabled(namespace), false);
+    });
+  });
 });
