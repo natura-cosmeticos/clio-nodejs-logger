@@ -20,16 +20,22 @@ function generateLoggerAttributes() {
 }
 
 describe('Logger', () => {
-  context('supressing output via log level', () => {
+  context('suppressing output via log level', () => {
     function createLoggerWithLogLevel(logLevel) {
-      const logger = new Logger({}, '', '*', 7000, logLevel);
+      const logger = new Logger({
+        context: {},
+        logLevel,
+        logLimit: 7000,
+        logPatterns: '*',
+        namespace: '',
+      });
 
       return [logger, spy(logger, 'format')];
     }
 
     const loggerMethods = ['debug', 'error', 'warn', 'info'];
 
-    it('does not supress any calls', () => {
+    it('does not suppress any calls', () => {
       const [debugLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.debug);
 
       loggerMethods.forEach(method => debugLevelLogger[method](lorem.sentence()));
@@ -37,7 +43,7 @@ describe('Logger', () => {
       assert.equal(loggerFormatSpy.callCount, 4);
     });
 
-    it('supresses debug calls', () => {
+    it('suppresses debug calls', () => {
       const [errorLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.error);
 
       loggerMethods.forEach(method => errorLevelLogger[method](lorem.sentence()));
@@ -45,7 +51,15 @@ describe('Logger', () => {
       assert.equal(loggerFormatSpy.callCount, 3);
     });
 
-    it('supresses debug and error calls', () => {
+    it('suppresses as log level error if only logPattern is given', () => {
+      const logger = new Logger({ logPatterns: '*' });
+      const loggerFormatSpy = spy(logger, 'format');
+
+      loggerMethods.forEach(method => logger[method](lorem.sentence()));
+      assert.equal(loggerFormatSpy.callCount, 3);
+    });
+
+    it('suppresses debug and error calls', () => {
       const [errorLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.warn);
 
       loggerMethods.forEach(method => errorLevelLogger[method](lorem.sentence()));
@@ -53,7 +67,7 @@ describe('Logger', () => {
       assert.equal(loggerFormatSpy.callCount, 2);
     });
 
-    it('supresses all but log/info calls', () => {
+    it('suppresses all but log/info calls', () => {
       const [infoLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.log);
 
       loggerMethods.forEach(method => infoLevelLogger[method](lorem.sentence()));
