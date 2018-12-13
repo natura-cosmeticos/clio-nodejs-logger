@@ -29,11 +29,22 @@ const prettyPrint = (event) => {
   return `\n${header}\n\t${body}\n\n`;
 };
 
+/**
+ * default values for Logger instance
+ * @private
+ */
+const DEFAULT_LOGGER_ATTRIBUTES = {
+  logLevel: process.env.LOG_LEVEL || loggerLevels.error,
+  logLimit: process.env.LOG_LIMIT || 7000,
+  logPatterns: process.env.LOG_NAMESPACES || undefined,
+  namespace: '',
+};
+
 /** @private */
 function normalizeArguments(options, extraParameters) {
   if (!options) return {};
 
-  if (!extraParameters.length) return options;
+  if (!extraParameters.length) return Object.assign({}, DEFAULT_LOGGER_ATTRIBUTES, options);
 
   const [namespace, logPatterns, logLimit, logLevel] = extraParameters;
 
@@ -45,17 +56,6 @@ function normalizeArguments(options, extraParameters) {
     namespace,
   };
 }
-
-/**
- * default values for Logger instance
- * @private
- */
-const DEFAULT_LOGGER_ATTRIBUTES = {
-  logLevel: process.env.LOG_LEVEL || loggerLevels.error,
-  logLimit: process.env.LOG_LIMIT || 7000,
-  logPatterns: process.env.LOG_NAMESPACES || undefined,
-  namespace: '',
-};
 
 /**
  * Basic Logger usage
@@ -103,7 +103,7 @@ class Logger {
       context, namespace, logPatterns, logLimit, logLevel,
     } = normalizeArguments(options, extraParameters);
 
-    Object.assign(this, DEFAULT_LOGGER_ATTRIBUTES, {
+    Object.assign(this, {
       contextData: { context, name: process.env.APP_NAME },
       format: process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify,
       log: this.info,
@@ -187,7 +187,7 @@ class Logger {
 
   /** @private */
   output(message, additionalArguments, outputType = loggerLevels.log) {
-    if (this.shouldSupressOutput(outputType)) return;
+    if (this.shouldSuppressOutput(outputType)) return;
 
     const event = this.serializer.serialize(
       message, additionalArguments, outputType,
@@ -197,7 +197,7 @@ class Logger {
   }
 
   /** @private */
-  shouldSupressOutput(outputType) {
+  shouldSuppressOutput(outputType) {
     return [
       logLevelFilter({ logLevel: this.logLevel, outputType }),
       isEnabled(this.namespace, this.logPatterns),
