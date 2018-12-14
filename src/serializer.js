@@ -41,9 +41,9 @@ module.exports = class Serializer {
       ...additionalArguments,
       ...this.contextData,
       level,
-      log_message: message,
-      namespace: this.namespace,
+      message,
       timestamp,
+      namespace: this.namespace,
       uptime: os.uptime(),
     };
   }
