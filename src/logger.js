@@ -3,6 +3,7 @@ const domain = require('domain');
 const prettyjson = require('prettyjson');
 const stringify = require('json-stringify-safe');
 
+const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');
 const Serializer = require('./serializer');
 const loggerLevels = require('./levels');
@@ -98,15 +99,17 @@ class Logger {
    *
    * It will not be possible to use that method on next major release
    */
+  // eslint-disable-next-line max-lines-per-function
   constructor(options, ...extraParameters) {
     const {
-      context, namespace, logPatterns, logLimit, logLevel,
+      context, namespace, logFormat, logPatterns, logLimit, logLevel,
     } = normalizeArguments(options, extraParameters);
 
     Object.assign(this, {
       contextData: { context, name: process.env.APP_NAME },
       format: process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify,
       log: this.info,
+      logFormat,
       logLevel,
       logLimit,
       logPatterns,
@@ -193,7 +196,9 @@ class Logger {
       message, additionalArguments, outputType,
     );
 
-    console.log(`${this.format(event)}`); // eslint-disable-line no-console
+    const formattedEvent = eventFormatter(event, this.logFormat);
+
+    console.log(`${this.format(formattedEvent)}`); // eslint-disable-line no-console
   }
 
   /** @private */

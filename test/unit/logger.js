@@ -20,6 +20,39 @@ function generateLoggerAttributes() {
 }
 
 describe('Logger', () => {
+  context('with formatter', () => {
+    const {
+      loggerContext,
+      loggerLogLevel,
+      loggerLogLimit,
+      loggerNamespace,
+    } = generateLoggerAttributes();
+
+    function createLoggerWithLogFormat(logFormat) {
+      const logger = new Logger({
+        context: loggerContext,
+        logFormat,
+        logLevel: loggerLogLevel,
+        logLimit: loggerLogLimit,
+        logPatterns: '*',
+        namespace: loggerNamespace,
+      });
+
+      return [logger, spy(logger, 'format')];
+    }
+
+
+    it('return log in graylog format when logFormat is graylog', () => {
+      const [logger, formatSpy] = createLoggerWithLogFormat('graylog');
+      const message = lorem.sentence();
+
+      logger.info(message);
+
+      const event = formatSpy.getCall(0).args[0];
+
+      assert.equal(event.log_message, message);
+    });
+  });
   context('suppressing output via log level', () => {
     function createLoggerWithLogLevel(logLevel) {
       const logger = new Logger({
