@@ -131,7 +131,9 @@ class Logger {
   createChildLogger(namespace) {
     const prefix = this.namespace ? `${this.namespace}:` : '';
 
-    return new Logger(this.contextData.context, `${prefix}${namespace}`, this.logPatterns);
+    const { logPatterns } = this;
+
+    return new Logger({ context: this.contextData.context, logPatterns, namespace: `${prefix}${namespace}` });
   }
 
   /**
