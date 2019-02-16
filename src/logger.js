@@ -43,7 +43,7 @@ const DEFAULT_LOGGER_ATTRIBUTES = {
 
 /** @private */
 function normalizeArguments(options, extraParameters) {
-  if (!options) return {};
+  if (!options) return DEFAULT_LOGGER_ATTRIBUTES;
 
   if (!extraParameters.length) return Object.assign({}, DEFAULT_LOGGER_ATTRIBUTES, options);
 
