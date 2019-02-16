@@ -2,11 +2,12 @@
 [![Build Status](https://travis-ci.org/natura-cosmeticos/clio-nodejs-logger.svg?branch=master)](https://travis-ci.org/natura-cosmeticos/clio-nodejs-logger)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8426d68f7eac481c9f3ae07b8eb1805b)](https://www.codacy.com/app/handrus_1938/clio-nodejs-logger?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=natura-cosmeticos/clio-nodejs-logger&amp;utm_campaign=Badge_Grade)
 
+
 # Clio Node.js Logger
 
 ## What For
 
-This module offers a logger with context per request. So it's supporting correlation id, session id, etc in any point of your application. You just need to use `Logger.current`.
+This module offers a logger with context per request. So it's supporting correlation id, session id, etc in any point of your application. You just need create a `domain` and `Logger.current`.
 
 ## How to use
 
@@ -21,22 +22,21 @@ yarn add '@naturacosmeticos/clio-nodejs-logger'
 Example:
 
 ```js
+const domain = require('domain');
 const Logger = require('@naturacosmeticos/clio-nodejs-logger');
-const uuid = require('uuid/v4');
 
-const appLogger = new Logger({
-  context: {
-    requestId: uuid(),
-    // Any additional info that you want to include with every record
-  },
-  namespace: 'appLogger'
-})
+const currentDomain = domain.create();
+const context = { correlationId: '39c74d4d-50a9-4ccb-8c7d-ac413564f4a1' };
 
-appLogger.info('Starting application', { someData });
+currentDomain.logger = new Logger({ context, logPatterns: '*' });
 
-const httpLogger = appLogger.createChildLogger('http');
-httpLogger.info('Start GET on /', { someData });
-httpLogger.error('Error processing GET on /', { someData });
+function myAwesomeAppEntryPoint() {
+  Logger.current().log('Awesome app running with execution context!');
+
+  new Logger({ logPatterns: '*' }).log('Awesome app running without execution context!');
+}
+
+currentDomain.run(myAwesomeAppEntryPoint);
 ```
 
 By default all log namespaces are disabled. To enable them you must pass the
@@ -59,14 +59,17 @@ Available `options` and details of how use this lib can be found in the docs, th
 Clio has the basic features of a logger library:
 
   * log levels: you can use `debug`, `error`, `log` and `warn` levels
-  * namespaces: with namespaces you can control what namespaces should be logged using the same semantics as the
+  * namespaces: with namespaces you can control which namespaces should be logged using the same semantics as the
 [debug](http://npmjs.com/package/debug)
 
-Beyond those common features Clio has additional features:
+Beyond those common log features Clio has additional features:
 
-  * Context per request: you can use [`domain`](https://nodejs.org/api/domain.html) and then `Logger.current` to use the same logger instance inside in your application. So we can have the same context and additional information in your log as: ` correlationId` and `sessionId`
+  * Context per request: you can use [`domain`](https://nodejs.org/api/domain.html) and then `Logger.current` to use the same logger instance inside in your application. So we can have the same context and additional information in your log as: ` correlationId` and `sessionId` (see an example in [execution-context](https://github.com/natura-cosmeticos/clio-nodejs-logger/blob/master/samples/execution-context.js))
   * Limit your log event size: when the log level is not debug the log object will have size limit of 7kb (you can increase passing a new limit in the logger constructor). This limit exists to avoid problems during log parsing and avoid usage of unnecessary resources (i.e.: when developer forgets log call during debugging).
 
+## Docs
+
+Check out [**Wiki**](https://github.com/natura-cosmeticos/clio-nodejs-logger/wiki)
 
 ## How to contribute
 
