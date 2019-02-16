@@ -17,4 +17,5 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
-// to test just run: curl localhost:3000
+// to run: LOG_NAMESPACES=* node index.js
+// to test log generation: curl localhost:3000
