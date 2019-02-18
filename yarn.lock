@@ -1122,7 +1122,7 @@ esdoc@^1.1.0:
     minimist "1.2.0"
     taffydb "2.7.3"
 
-eslint-config-airbnb-base@^13.0.0, eslint-config-airbnb-base@^13.1.0:
+eslint-config-airbnb-base@^13.1.0:
   version "13.1.0"
   resolved "https://registry.yarnpkg.com/eslint-config-airbnb-base/-/eslint-config-airbnb-base-13.1.0.tgz#b5a1b480b80dfad16433d6c4ad84e6605052c05c"
   integrity sha512-XWwQtf3U3zIoKO1BbHh6aUhJZQweOwSt4c2JrPDg9FP3Ltv3+YfEv7jIDB8275tVnO/qOHbfuYg3kzw6Je7uWw==
@@ -1130,13 +1130,6 @@ eslint-config-airbnb-base@^13.0.0, eslint-config-airbnb-base@^13.1.0:
     eslint-restricted-globals "^0.1.1"
     object.assign "^4.1.0"
     object.entries "^1.0.4"
-
-"eslint-config-natura@https://s3.amazonaws.com/natura-globalsales-artifacts/libs/eslint-config-natura.tar.gz":
-  version "1.0.0"
-  resolved "https://s3.amazonaws.com/natura-globalsales-artifacts/libs/eslint-config-natura.tar.gz#5c5841f14b5756e0f768f4f6ffda66a5aad36767"
-  dependencies:
-    eslint "^5.3.0"
-    eslint-config-airbnb-base "^13.0.0"
 
 eslint-import-resolver-node@^0.3.1:
   version "0.3.2"
