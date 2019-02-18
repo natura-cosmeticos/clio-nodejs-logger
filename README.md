@@ -69,7 +69,11 @@ Beyond those common log features Clio has additional features:
 
 ## Docs
 
-Check out [**Wiki**](https://github.com/natura-cosmeticos/clio-nodejs-logger/wiki)
+Check out [Wiki](https://github.com/natura-cosmeticos/clio-nodejs-logger/wiki)
+
+## Samples
+
+Take a loot at the [samples](https://github.com/natura-cosmeticos/clio-nodejs-logger/tree/master/samples) for examples of usage.
 
 ## How to contribute
 
