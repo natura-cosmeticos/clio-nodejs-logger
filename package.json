@@ -2,7 +2,7 @@
   "main": "index.js",
   "name": "@naturacosmeticos/clio-nodejs-logger",
   "author": "Natura Cosméticos <TDDAArquitetura@natura.net>",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "devDependencies": {
     "@naturacosmeticos/eslint-config-natura": "^1.0.0",
     "esdoc": "^1.1.0",
@@ -17,6 +17,10 @@
     "nyc": "^11.9.0",
     "sinon": "^7.1.1"
   },
+  "files": [
+    "/src",
+    "index.js"
+  ],
   "scripts": {
     "docs": "./node_modules/.bin/esdoc -c .esdoc.json",
     "lint": "eslint src/ test/",
