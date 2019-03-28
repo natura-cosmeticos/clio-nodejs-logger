@@ -66,3 +66,6 @@ typings/
 # project docs
 
 docs
+
+# IDE file
+.vscode

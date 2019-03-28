@@ -14,7 +14,7 @@ module.exports = class Serializer {
     const timestamp = new Date().toISOString();
     const event = this.event(message, additionalArguments, level, timestamp);
 
-    if (level !== loggerLevels.debug && sizeof(event) > this.logLimit) {
+    if (level !== loggerLevels.debug && sizeof(JSON.stringify(event)) > this.logLimit) {
       return this.truncatedEvent(level, timestamp);
     }
 
