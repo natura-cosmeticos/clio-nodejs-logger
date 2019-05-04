@@ -43,8 +43,8 @@ module.exports = class Serializer {
       ...this.contextData,
       level,
       message,
-      timestamp,
       namespace: this.namespace,
+      timestamp,
       uptime: os.uptime(),
     };
   }
