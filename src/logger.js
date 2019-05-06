@@ -13,6 +13,7 @@ const logLevelFilter = require('./log-level-filter');
  * @private
  */
 const DEFAULT_LOGGER_ATTRIBUTES = {
+  flipLevelPattern: process.env.FLIP_LOG_PATTERN,
   logLevel: process.env.LOG_LEVEL || loggerLevels.error,
   logLimit: process.env.LOG_LIMIT || 7000,
   logPatterns: process.env.LOG_NAMESPACES || undefined,
@@ -28,11 +29,7 @@ function normalizeArguments(options, extraParameters) {
   const [namespace, logPatterns, logLimit, logLevel] = extraParameters;
 
   return {
-    context: options,
-    logLevel,
-    logLimit,
-    logPatterns,
-    namespace,
+    context: options, logLevel, logLimit, logPatterns, namespace,
   };
 }
 
@@ -83,12 +80,20 @@ class Logger {
   // eslint-disable-next-line max-lines-per-function
   constructor(options, ...extraParameters) {
     const {
-      context, namespace, logFormat, logPatterns, logLimit, logLevel, fieldsToExpose,
+      context,
+      flipLevelPattern,
+      namespace,
+      logFormat,
+      logPatterns,
+      logLimit,
+      logLevel,
+      fieldsToExpose,
     } = normalizeArguments(options, extraParameters);
 
     Object.assign(this, {
       contextData: { context, name: process.env.APP_NAME },
       fieldsToExpose,
+      flipLevelPattern,
       format: process.env.LOGS_PRETTY_PRINT === '1' ? prettyPrint : stringify,
       log: this.info,
       logFormat,
@@ -115,7 +120,7 @@ class Logger {
 
     const { logPatterns } = this;
 
-    return new Logger({ context: this.contextData.context, logPatterns, namespace: `${prefix}${namespace}` });
+    return new Logger({ context: this.contextData.context, logPatterns, namespace: `${prefix}/${namespace}` });
   }
 
   /**
@@ -174,20 +179,30 @@ class Logger {
 
   /** @private */
   output(message, additionalArguments, outputType = loggerLevels.log) {
-    if (this.shouldSuppressOutput(outputType)) return;
+    if (this.shouldSuppressOutput(message, outputType)) return;
 
     const event = this.serializer.serialize(
-      message, additionalArguments, outputType,
+      message, additionalArguments, outputType, this.contextData,
     );
 
-    const formattedEvent = eventFormatter(event, this.fieldsToExpose, this.logFormat);
+    const formattedLog = eventFormatter(event, this.fieldsToExpose, this.logFormat, this.logLimit);
 
-    console.log(`${this.format(formattedEvent)}`); // eslint-disable-line no-console
+    if (!formattedLog.chunked) {
+      // eslint-disable-next-line no-console
+      console.log(`${this.format(formattedLog)}`);
+    } else {
+      // eslint-disable-next-line no-console
+      formattedLog.chunks.map(chunk => console.log(`${this.format(chunk)}`));
+    }
   }
 
   /** @private */
-  shouldSuppressOutput(outputType) {
-    return [
+  shouldSuppressOutput(message, outputType) {
+    // force enable log if flipLevelPattern is matched over message
+    const flipLog = this.flipLevelPattern
+    && stringify(message).match(new RegExp(this.flipLevelPattern));
+
+    return (!flipLog) && [
       logLevelFilter({ logLevel: this.logLevel, outputType }),
       isEnabled(this.namespace, this.logPatterns),
     ].some(response => response !== true);

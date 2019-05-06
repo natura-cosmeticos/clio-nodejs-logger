@@ -15,15 +15,50 @@ const exposeFields = (event, fieldsToExpose) => {
   }, {});
 };
 
-module.exports = function graylog(event = {}, fieldsToExpose = []) {
+const measureChunkMessage = (messageHeader, message, logLimit) => {
+  const { encode } = new TextEncoder('utf-8');
+  const flagSize = encode({ chunk: '999/999' }).length; // measure chunk marker
+  const headerSize = encode(messageHeader).length;
+  const messageFullSize = encode(stringify(stringify(message)));
+  const bufferSize = logLimit - headerSize - flagSize;
+
+  return {
+    bufferSize,
+    chunks: Math.ceil(messageFullSize / bufferSize),
+  };
+};
+
+const chunkMessage = (messageHeader, message, logLimit) => {
+  if (!logLimit) return Object.assign({}, messageHeader, { message });
+
+  const header = Object.assign({}, messageHeader, { message: '@' });
+  const chunkMeasure = measureChunkMessage(header, message, logLimit);
+  const encodedMessage = new TextEncoder('utf-8').encode(stringify(stringify(message)));
+
+  if (chunkMeasure.chunks === 1) return Object.assign({}, messageHeader, { message });
+
+  const chunks = [];
+
+  for (let chunk = 0; chunk < chunkMeasure.chunks; chunk += 1) {
+    chunks.push(
+      stringify({ ...header, chunk: `${chunk}/${chunkMeasure.chunks}` })
+        .replace('"@"', encodedMessage.slice(chunk * logLimit, (chunk + 1) * logLimit)),
+    );
+  }
+
+  return { chunked: true, chunks };
+};
+
+module.exports = function graylog(event = {}, fieldsToExpose = [], logLimit) {
   const {
     level, message, timestamp, ...eventForGraylog
   } = event;
 
-  return Object.assign(eventForGraylog, {
+  const messageHeader = Object.assign(eventForGraylog, {
     ...exposeFields(event, fieldsToExpose),
     log_level: level,
-    log_message: message,
     log_timestamp: timestamp,
   });
+
+  return chunkMessage(messageHeader, message, logLimit);
 };
