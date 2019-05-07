@@ -1,7 +1,10 @@
 const stringify = require('json-stringify-safe');
+const { getNamespace } = require('continuation-local-storage');
 
 const exposeFields = (event, fieldsToExpose) => {
   const json = stringify(event);
+
+  const tContext = getNamespace('transactional-context');
 
   return fieldsToExpose.reduce((resultantFields, field) => {
     const regExp = new RegExp(`(?:.*${field.fieldName}"?[:\\s]*["']?)([^"']*)(.*)`);
@@ -11,7 +14,7 @@ const exposeFields = (event, fieldsToExpose) => {
       accumulatedResult[field.alias || field.fieldName] = json.replace(regExp, '$1');
     }
 
-    return accumulatedResult;
+    return { ...accumulatedResult, correlationId: tContext.get('correlationId') };
   }, {});
 };
 

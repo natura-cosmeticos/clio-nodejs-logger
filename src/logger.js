@@ -180,7 +180,6 @@ class Logger {
   /** @private */
   output(message, additionalArguments, outputType = loggerLevels.log) {
     if (this.shouldSuppressOutput(message, outputType)) return;
-
     const event = this.serializer.serialize(
       message, additionalArguments, outputType, this.contextData,
     );
