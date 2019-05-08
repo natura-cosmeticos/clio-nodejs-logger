@@ -1,6 +1,6 @@
 const domain = require('domain');
 const stringify = require('json-stringify-safe');
-const { getNamespace } = require('continuation-local-storage');
+const { getNamespace } = require('cls-hooked');
 const { prettyPrint } = require('./formatters');
 const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');

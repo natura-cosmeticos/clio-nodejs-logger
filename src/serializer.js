@@ -1,5 +1,5 @@
 const os = require('os');
-const { getNamespace } = require('continuation-local-storage');
+const { getNamespace } = require('cls-hooked');
 
 module.exports = class Serializer {
   constructor(contextData, namespace, logLimit) {

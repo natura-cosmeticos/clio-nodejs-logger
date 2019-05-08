@@ -1,5 +1,5 @@
 const stringify = require('json-stringify-safe');
-const { getNamespace } = require('continuation-local-storage');
+const { getNamespace } = require('cls-hooked');
 
 const exposeFields = (event, fieldsToExpose) => {
   const json = stringify(event);
