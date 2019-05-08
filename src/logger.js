@@ -1,12 +1,12 @@
 const domain = require('domain');
 const stringify = require('json-stringify-safe');
+const { getNamespace } = require('continuation-local-storage');
 const { prettyPrint } = require('./formatters');
 const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');
 const Serializer = require('./serializer');
 const loggerLevels = require('./levels');
 const logLevelFilter = require('./log-level-filter');
-
 
 /**
  * default values for Logger instance
@@ -124,6 +124,13 @@ class Logger {
   }
 
   /**
+   * Sets value to a transactional context variable
+   */
+  setArguments(value) {
+    getNamespace('transactional-context').set('logArguments', value);
+  }
+
+  /**
    * Logs a message using stdout
    * @param {Object} message - the message to be logged
    * @param {Object} [additionalArguments] - object with additional info to be logged
@@ -212,11 +219,7 @@ class Logger {
    * or an instance without contextual information if there is no active domain.
    */
   static current() {
-    if (!domain.active) {
-      return new Logger();
-    }
-
-    return domain.active.logger;
+    return (!domain.active) ? new Logger() : domain.active.logger;
   }
 }
 
