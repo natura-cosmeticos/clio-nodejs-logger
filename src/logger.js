@@ -1,6 +1,6 @@
 const domain = require('domain');
 const stringify = require('json-stringify-safe');
-const { getNamespace } = require('cls-hooked');
+const asyncLocalStorage = require('async-local-storage');
 const { prettyPrint } = require('./formatters');
 const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');
@@ -127,7 +127,7 @@ class Logger {
    * Sets value to a transactional context variable
    */
   setArguments(value) {
-    getNamespace('transactional-context').set('logArguments', value);
+    asyncLocalStorage.set('logArguments', value);
   }
 
   /**

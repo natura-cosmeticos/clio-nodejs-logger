@@ -1,5 +1,5 @@
 const os = require('os');
-const { getNamespace } = require('cls-hooked');
+const asyncLocalStorage = require('async-local-storage');
 
 module.exports = class Serializer {
   constructor(contextData, namespace, logLimit) {
@@ -19,10 +19,8 @@ module.exports = class Serializer {
    *  @private
    */
   event(message, additionalArguments, level, timestamp) {
-    const tContext = getNamespace('transactional-context');
-
     return {
-      ...tContext ? tContext.get('logArguments') : {},
+      ...asyncLocalStorage.get('logArguments'),
       ...additionalArguments,
       ...this.contextData,
       level,
