@@ -6,7 +6,6 @@ module.exports = class Serializer {
     this.contextData = contextData;
     this.namespace = namespace;
     this.logLimit = logLimit;
-    this.tContext = getNamespace('transactional-context');
   }
 
   serialize(message, additionalArguments, level) {
@@ -20,8 +19,10 @@ module.exports = class Serializer {
    *  @private
    */
   event(message, additionalArguments, level, timestamp) {
+    const tContext = getNamespace('transactional-context');
+
     return {
-      ...this.tContext.get('logArguments'),
+      ...tContext ? tContext.get('logArguments') : {},
       ...additionalArguments,
       ...this.contextData,
       level,

@@ -14,7 +14,7 @@ const exposeFields = (event, fieldsToExpose) => {
       accumulatedResult[field.alias || field.fieldName] = json.replace(regExp, '$1');
     }
 
-    return { ...accumulatedResult, correlationId: tContext.get('correlationId') };
+    return { ...accumulatedResult, correlationId: tContext ? tContext.get('correlationId') : {} };
   }, {});
 };
 
