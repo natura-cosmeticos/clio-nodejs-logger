@@ -19,10 +19,10 @@ const exposeFields = (event, fieldsToExpose) => {
 };
 
 const measureChunkMessage = (messageHeader, message, logLimit) => {
-  const { encode } = new TextEncoder('utf-8');
-  const flagSize = encode({ chunk: '999/999' }).length; // measure chunk marker
-  const headerSize = encode(messageHeader).length;
-  const messageFullSize = encode(stringify(stringify(message)));
+  const encoder = new TextEncoder();
+  const flagSize = encoder.encode(stringify({ chunk: '999/999' })).length; // measure chunk marker
+  const headerSize = encoder.encode(messageHeader).length;
+  const messageFullSize = encoder.encode(stringify(stringify(message)));
   const bufferSize = logLimit - headerSize - flagSize;
 
   return {
@@ -36,7 +36,7 @@ const chunkMessage = (messageHeader, message, logLimit) => {
 
   const header = Object.assign({}, messageHeader, { message: '@' });
   const chunkMeasure = measureChunkMessage(header, message, logLimit);
-  const encodedMessage = new TextEncoder('utf-8').encode(stringify(stringify(message)));
+  const encodedMessage = new TextEncoder().encode(stringify(stringify(message)));
 
   if (chunkMeasure.chunks === 1) return Object.assign({}, messageHeader, { message });
 
