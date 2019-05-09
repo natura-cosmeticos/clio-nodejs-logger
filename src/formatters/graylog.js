@@ -1,5 +1,6 @@
 const stringify = require('json-stringify-safe');
 const asyncLocalStorage = require('async-local-storage');
+const { TextEncoder } = require('util');
 
 const exposeFields = (event, fieldsToExpose) => {
   const json = stringify(event);
