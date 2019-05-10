@@ -87,12 +87,10 @@ class Logger {
       logPatterns,
       logLimit,
       logLevel,
-      fieldsToExpose,
     } = normalizeArguments(options, extraParameters);
 
     Object.assign(this, {
       contextData: { context, name: process.env.APP_NAME },
-      fieldsToExpose,
       flipLevelPattern,
       format: process.env.LOGS_PRETTY_PRINT === '1' ? prettyPrint : stringify,
       log: this.info,
@@ -191,7 +189,7 @@ class Logger {
       message, additionalArguments, outputType, this.contextData,
     );
 
-    const formattedLog = eventFormatter(event, this.fieldsToExpose, this.logFormat, this.logLimit);
+    const formattedLog = eventFormatter(event, this.logFormat, this.logLimit);
 
     if (!formattedLog.chunked) {
       // eslint-disable-next-line no-console

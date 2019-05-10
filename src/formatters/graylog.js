@@ -6,7 +6,7 @@ const exposeFields = (event, fieldsToExpose) => {
   const json = stringify(event);
 
 
-  return fieldsToExpose.reduce((resultantFields, field) => {
+  const exposed = fieldsToExpose.reduce((resultantFields, field) => {
     const regExp = new RegExp(`(?:.*${field.fieldName}"?[:\\s]*["']?)([^"']*)(.*)`);
     const accumulatedResult = { ...resultantFields };
 
@@ -16,6 +16,8 @@ const exposeFields = (event, fieldsToExpose) => {
 
     return { ...accumulatedResult, correlationId: asyncLocalStorage.get('correlationId') };
   }, {});
+
+  return { ...exposed, correlationId: asyncLocalStorage.get('correlationId') };
 };
 
 const measureChunkMessage = (messageHeader, message, logLimit) => {
