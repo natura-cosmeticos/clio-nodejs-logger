@@ -1,6 +1,6 @@
 const stringify = require('json-stringify-safe');
 const asyncLocalStorage = require('async-local-storage');
-const { TextEncoder } = require('util');
+const { TextEncoder, TextDecoder } = require('util');
 
 const exposeFields = (event, fieldsToExpose) => {
   const json = stringify(event);
@@ -24,7 +24,7 @@ const measureChunkMessage = (messageHeader, message, logLimit) => {
   const encoder = new TextEncoder();
   const flagSize = encoder.encode(stringify({ chunk: '999/999' })).length; // measure chunk marker
   const headerSize = encoder.encode(messageHeader).length;
-  const messageFullSize = encoder.encode(stringify(stringify(message)));
+  const messageFullSize = encoder.encode(stringify(stringify(message))).length;
   const bufferSize = logLimit - headerSize - flagSize;
 
   return {
@@ -38,17 +38,15 @@ const chunkMessage = (messageHeader, message, logLimit) => {
 
   const header = Object.assign({}, messageHeader, { message: '@' });
   const chunkMeasure = measureChunkMessage(header, message, logLimit);
-  const encodedMessage = new TextEncoder().encode(stringify(stringify(message)));
+  const encodedMessage = new TextEncoder().encode(stringify(message));
 
   if (chunkMeasure.chunks === 1) return Object.assign({}, messageHeader, { message });
-
   const chunks = [];
 
   for (let chunk = 0; chunk < chunkMeasure.chunks; chunk += 1) {
-    chunks.push(
-      stringify({ ...header, chunk: `${chunk}/${chunkMeasure.chunks}` })
-        .replace('"@"', encodedMessage.slice(chunk * logLimit, (chunk + 1) * logLimit)),
-    );
+    chunks.push(stringify({ ...header, chunk: `${chunk}/${chunkMeasure.chunks}` })
+      .replace('"@"', new TextDecoder()
+        .decode(encodedMessage.slice(chunk * logLimit, (chunk + 1) * logLimit))));
   }
 
   return { chunked: true, chunks };

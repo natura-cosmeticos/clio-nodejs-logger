@@ -14,6 +14,7 @@ const logLevelFilter = require('./log-level-filter');
  */
 const DEFAULT_LOGGER_ATTRIBUTES = {
   flipLevelPattern: process.env.FLIP_LOG_PATTERN,
+  logFormat: process.env.LOG_FORMAT,
   logLevel: process.env.LOG_LEVEL || loggerLevels.error,
   logLimit: process.env.LOG_LIMIT || 7000,
   logPatterns: process.env.LOG_NAMESPACES || undefined,
@@ -87,10 +88,12 @@ class Logger {
       logPatterns,
       logLimit,
       logLevel,
+      fieldsToExpose,
     } = normalizeArguments(options, extraParameters);
 
     Object.assign(this, {
       contextData: { context, name: process.env.APP_NAME },
+      fieldsToExpose,
       flipLevelPattern,
       format: process.env.LOGS_PRETTY_PRINT === '1' ? prettyPrint : stringify,
       log: this.info,
@@ -189,15 +192,12 @@ class Logger {
       message, additionalArguments, outputType, this.contextData,
     );
 
-    const formattedLog = eventFormatter(event, this.logFormat, this.logLimit);
+    const formattedLog = eventFormatter(event, this.fieldsToExpose, this.logFormat, this.logLimit);
 
-    if (!formattedLog.chunked) {
-      // eslint-disable-next-line no-console
-      console.log(`${this.format(formattedLog)}`);
-    } else {
-      // eslint-disable-next-line no-console
-      formattedLog.chunks.map(chunk => console.log(`${this.format(chunk)}`));
-    }
+    // eslint-disable-next-line no-console
+    if (!formattedLog.chunked) console.log(`${this.format(formattedLog)}`);
+    // eslint-disable-next-line no-console
+    else formattedLog.chunks.map(chunk => console.log(`${this.format(chunk)}`));
   }
 
   /** @private */
