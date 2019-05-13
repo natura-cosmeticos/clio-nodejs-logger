@@ -64,9 +64,6 @@ class Logger {
    * You can also exclude specific debuggers by prefixing them with a "-" character
    * `logPatterns: 'api,-api:myAwesomeApi'`
    * @param {String} options.namespace - Logger namespace
-   * @param {Array} [options.fieldsToExpose=undefined] - List of fields to extract from any level
-   * and expose then on first level of log object. Can also be renamed by passing an alias value:
-   * [{fieldName:'level'}, {fieldName:'correlationId', alias:correlation_id}]
    *
    * @param  {...any} extraParameters - DEPRECATED, Prefer usage of options object
    *
@@ -88,12 +85,10 @@ class Logger {
       logPatterns,
       logLimit,
       logLevel,
-      fieldsToExpose,
     } = normalizeArguments(options, extraParameters);
 
     Object.assign(this, {
       contextData: { context, name: process.env.APP_NAME },
-      fieldsToExpose,
       flipLevelPattern,
       format: process.env.LOGS_PRETTY_PRINT === '1' ? prettyPrint : stringify,
       log: this.info,
@@ -191,8 +186,9 @@ class Logger {
     const event = this.serializer.serialize(
       message, additionalArguments, outputType, this.contextData,
     );
-
-    const formattedLog = eventFormatter(event, this.fieldsToExpose, this.logFormat, this.logLimit);
+    const fieldsToExpose = Object.keys(asyncLocalStorage.get('logArguments') || {})
+      .reduce((acc, key) => [...acc, { fieldName: key }], []);
+    const formattedLog = eventFormatter(event, fieldsToExpose, this.logFormat, this.logLimit);
 
     // eslint-disable-next-line no-console
     if (!formattedLog.chunked) console.log(`${this.format(formattedLog)}`);
