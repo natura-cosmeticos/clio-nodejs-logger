@@ -1,5 +1,5 @@
 const graylog = require('./graylog');
-const prettyPrint = require('./prettyPrint');
+const prettyPrint = require('./pretty-print');
 
 module.exports = {
   graylog,

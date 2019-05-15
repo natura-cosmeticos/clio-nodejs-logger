@@ -7,7 +7,13 @@ describe('graylog formatter', () => {
   let emptyOutput;
 
   before(() => {
-    emptyOutput = { log_level: undefined, log_message: undefined, log_timestamp: undefined };
+    emptyOutput = {
+      correlationId: null,
+      log_level: undefined,
+      log_message: undefined,
+      log_timestamp: undefined,
+    };
+    // emptyOutput = { ...emptyOutput, log_message: undefined };
   });
 
   it('return object with log_level, log_message and log_timestamp undefined when event is not defined', () => {
@@ -64,6 +70,7 @@ describe('graylog formatter', () => {
     const additionalAttributes = faker.random.objectElement();
     const expectedResult = {
       ...additionalAttributes,
+      correlationId: null,
       log_level: level,
       log_message: message,
       log_timestamp: timestamp,

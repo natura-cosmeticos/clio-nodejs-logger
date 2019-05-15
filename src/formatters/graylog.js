@@ -34,13 +34,13 @@ const measureChunkMessage = (messageHeader, message, logLimit) => {
 };
 
 const chunkMessage = (messageHeader, message, logLimit) => {
-  if (!logLimit) return Object.assign({}, messageHeader, { message });
+  if (!logLimit) return Object.assign({}, messageHeader, { log_message: message });
 
-  const header = Object.assign({}, messageHeader, { message: '@' });
+  const header = Object.assign({}, messageHeader, { log_message: '@' });
   const chunkMeasure = measureChunkMessage(header, message, logLimit);
   const encodedMessage = new TextEncoder().encode(stringify(message));
 
-  if (chunkMeasure.chunks === 1) return Object.assign({}, messageHeader, { message });
+  if (chunkMeasure.chunks === 1) return Object.assign({}, messageHeader, { log_message: message });
   const chunks = [];
 
   for (let chunk = 0; chunk < chunkMeasure.chunks; chunk += 1) {
