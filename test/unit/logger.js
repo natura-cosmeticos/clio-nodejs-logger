@@ -64,7 +64,7 @@ describe('Logger', () => {
     });
   });
 
-  context('set local storage arguments', () => {
+  context('with local storage arguments', () => {
     const setActiveScope = () => new Promise((resolve) => {
       asyncLocalStorage.enable();
       resolve();

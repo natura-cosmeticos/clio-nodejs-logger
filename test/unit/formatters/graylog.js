@@ -97,4 +97,27 @@ describe('graylog formatter', () => {
     assert.equal(formattedEvent.chunked, true);
     assert.ok(formattedEvent.chunks instanceof Array && formattedEvent.chunks.length > 0);
   });
+
+  it('expose fields from log message', () => {
+    // given
+    const message = {
+      actionArg: 'fakeActionValue',
+      entityArg: 'fakeEntityValue',
+    };
+    const fieldsToExpose = [
+      { fieldName: 'actionArg' },
+      { fieldName: 'entityArg' },
+    ];
+
+    const event = { message };
+    const logLimit = 7000;
+
+    const expectedResult = Object.assign(message, emptyOutput, { log_message: message });
+
+    // when
+    const formattedEvent = graylog(event, fieldsToExpose, logLimit);
+
+    // then
+    assert.deepEqual(formattedEvent, expectedResult);
+  });
 });
