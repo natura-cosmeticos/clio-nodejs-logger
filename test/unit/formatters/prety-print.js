@@ -1,5 +1,4 @@
 const assert = require('assert');
-const faker = require('faker');
 
 const { prettyPrint } = require('../../../src/formatters/');
 

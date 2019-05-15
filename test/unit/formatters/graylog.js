@@ -82,4 +82,19 @@ describe('graylog formatter', () => {
     // then
     assert.deepEqual(formattedEvent, expectedResult);
   });
+
+  it('return object with chunked property equal true and an array of the chunked data', () => {
+    // given
+    const message = ''.padEnd(10000, 'x');
+    const event = { message };
+    const logArguments = [{ fakeArgument: 'fakeValue' }];
+    const logLimit = 7000;
+
+    // when
+    const formattedEvent = graylog(event, logArguments, logLimit);
+
+    // then
+    assert.equal(formattedEvent.chunked, true);
+    assert.ok(formattedEvent.chunks instanceof Array && formattedEvent.chunks.length > 0);
+  });
 });

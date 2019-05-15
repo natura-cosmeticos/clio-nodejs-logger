@@ -27,7 +27,7 @@
     "lint:fix": "eslint --fix src/ test/",
     "test": "mocha --recursive",
     "test:watch": "mocha --recursive --watch",
-    "test:coverage": "nyc mocha --recursive",
+    "test:coverage": "nyc --reporter=text mocha --recursive",
     "package": "bash package.sh"
   },
   "nyc": {
