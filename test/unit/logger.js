@@ -145,7 +145,7 @@ describe('Logger', () => {
   });
 
   context('creating an instance of logger with child namespace', () => {
-    it('returns domain.logger when running inside a domain', () => {
+    it('returns logger instance with child namespace', () => {
       const loggerNamespace = lorem.word();
       const loggerChildNamespace = lorem.word();
       const expectedNamespace = `${loggerNamespace}:/${loggerChildNamespace}`;
