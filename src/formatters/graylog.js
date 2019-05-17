@@ -1,5 +1,5 @@
 const stringify = require('json-stringify-safe');
-const asyncLocalStorage = require('async-local-storage');
+const localStorage = require('async-local-storage');
 const { TextEncoder, TextDecoder } = require('util');
 
 const exposeFields = (event, fieldsToExpose) => {
@@ -14,10 +14,10 @@ const exposeFields = (event, fieldsToExpose) => {
       accumulatedResult[field.alias || field.fieldName] = json.replace(regExp, '$1');
     }
 
-    return { ...accumulatedResult, correlationId: asyncLocalStorage.get('correlationId') };
+    return accumulatedResult;
   }, {});
 
-  return { ...exposed, correlationId: asyncLocalStorage.get('correlationId') };
+  return { correlationId: localStorage.get('correlationId'), ...exposed };
 };
 
 const measureChunkMessage = (messageHeader, message, logLimit) => {
