@@ -13,7 +13,6 @@ describe('graylog formatter', () => {
       log_message: undefined,
       log_timestamp: undefined,
     };
-    // emptyOutput = { ...emptyOutput, log_message: undefined };
   });
 
   it('return object with log_level, log_message and log_timestamp undefined when event is not defined', () => {

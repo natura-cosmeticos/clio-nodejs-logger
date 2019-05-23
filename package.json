@@ -56,7 +56,6 @@
     "async-local-storage": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.10",
-    "object-sizeof": "^1.3.0",
     "prettyjson": "^1.2.1"
   },
   "contributors": [
