@@ -7,7 +7,12 @@ describe('graylog formatter', () => {
   let emptyOutput;
 
   before(() => {
-    emptyOutput = { log_level: undefined, log_message: undefined, log_timestamp: undefined };
+    emptyOutput = {
+      correlationId: null,
+      log_level: undefined,
+      log_message: undefined,
+      log_timestamp: undefined,
+    };
   });
 
   it('return object with log_level, log_message and log_timestamp undefined when event is not defined', () => {
@@ -64,6 +69,7 @@ describe('graylog formatter', () => {
     const additionalAttributes = faker.random.objectElement();
     const expectedResult = {
       ...additionalAttributes,
+      correlationId: null,
       log_level: level,
       log_message: message,
       log_timestamp: timestamp,
@@ -71,6 +77,44 @@ describe('graylog formatter', () => {
     const event = Object.assign({ level, message, timestamp }, additionalAttributes);
     // when
     const formattedEvent = graylog(event);
+
+    // then
+    assert.deepEqual(formattedEvent, expectedResult);
+  });
+
+  it('return object with chunked property equal true and an array of the chunked data', () => {
+    // given
+    const message = ''.padEnd(10000, 'x');
+    const event = { message };
+    const logArguments = [{ fakeArgument: 'fakeValue' }];
+    const logLimit = 7000;
+
+    // when
+    const formattedEvent = graylog(event, logArguments, logLimit);
+
+    // then
+    assert.equal(formattedEvent.chunked, true);
+    assert.ok(formattedEvent.chunks instanceof Array && formattedEvent.chunks.length > 0);
+  });
+
+  it('expose fields from log message', () => {
+    // given
+    const message = {
+      actionArg: 'fakeActionValue',
+      entityArg: 'fakeEntityValue',
+    };
+    const fieldsToExpose = [
+      { fieldName: 'actionArg' },
+      { fieldName: 'entityArg' },
+    ];
+
+    const event = { message };
+    const logLimit = 7000;
+
+    const expectedResult = Object.assign(message, emptyOutput, { log_message: message });
+
+    // when
+    const formattedEvent = graylog(event, fieldsToExpose, logLimit);
 
     // then
     assert.deepEqual(formattedEvent, expectedResult);

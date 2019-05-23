@@ -1,8 +1,7 @@
-const _ = require('lodash');
 const domain = require('domain');
-const prettyjson = require('prettyjson');
 const stringify = require('json-stringify-safe');
-
+const asyncLocalStorage = require('async-local-storage');
+const { prettyPrint } = require('./formatters');
 const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');
 const Serializer = require('./serializer');
@@ -10,31 +9,12 @@ const loggerLevels = require('./levels');
 const logLevelFilter = require('./log-level-filter');
 
 /**
- * Default options for prettyjson
- */
-const PrettyJsonDefaultOptions = Object.freeze({
-  defaultIndentation: 4,
-  inlineArrays: 1,
-});
-
-/**
- * For development mode
- */
-const prettyPrint = (event) => {
-  const header = `[${event.timestamp}]: [${event.message}]`;
-  const eventDetails = _.omit(event, 'timestamp', 'message');
-  const body = prettyjson
-    .render(eventDetails, _.clone(PrettyJsonDefaultOptions))
-    .replace(/\n/g, '\n\t');
-
-  return `\n${header}\n\t${body}\n\n`;
-};
-
-/**
  * default values for Logger instance
  * @private
  */
 const DEFAULT_LOGGER_ATTRIBUTES = {
+  flipLevelPattern: process.env.FLIP_LOG_PATTERN,
+  logFormat: process.env.LOG_FORMAT,
   logLevel: process.env.LOG_LEVEL || loggerLevels.error,
   logLimit: process.env.LOG_LIMIT || 7000,
   logPatterns: process.env.LOG_NAMESPACES || undefined,
@@ -50,11 +30,7 @@ function normalizeArguments(options, extraParameters) {
   const [namespace, logPatterns, logLimit, logLevel] = extraParameters;
 
   return {
-    context: options,
-    logLevel,
-    logLimit,
-    logPatterns,
-    namespace,
+    context: options, logLevel, logLimit, logPatterns, namespace,
   };
 }
 
@@ -102,12 +78,19 @@ class Logger {
   // eslint-disable-next-line max-lines-per-function
   constructor(options, ...extraParameters) {
     const {
-      context, namespace, logFormat, logPatterns, logLimit, logLevel,
+      context,
+      flipLevelPattern,
+      namespace,
+      logFormat,
+      logPatterns,
+      logLimit,
+      logLevel,
     } = normalizeArguments(options, extraParameters);
 
     Object.assign(this, {
       contextData: { context, name: process.env.APP_NAME },
-      format: process.env.LOGS_PRETTY_PRINT ? prettyPrint : stringify,
+      flipLevelPattern,
+      format: process.env.LOGS_PRETTY_PRINT === '1' ? prettyPrint : stringify,
       log: this.info,
       logFormat,
       logLevel,
@@ -133,7 +116,14 @@ class Logger {
 
     const { logPatterns } = this;
 
-    return new Logger({ context: this.contextData.context, logPatterns, namespace: `${prefix}${namespace}` });
+    return new Logger({ context: this.contextData.context, logPatterns, namespace: `${prefix}/${namespace}` });
+  }
+
+  /**
+   * Sets value to a transactional context variable
+   */
+  setArguments(value) {
+    asyncLocalStorage.set('logArguments', value);
   }
 
   /**
@@ -192,20 +182,27 @@ class Logger {
 
   /** @private */
   output(message, additionalArguments, outputType = loggerLevels.log) {
-    if (this.shouldSuppressOutput(outputType)) return;
-
+    if (this.shouldSuppressOutput(message, outputType)) return;
     const event = this.serializer.serialize(
-      message, additionalArguments, outputType,
+      message, additionalArguments, outputType, this.contextData,
     );
+    const fieldsToExpose = Object.keys(asyncLocalStorage.get('logArguments') || {})
+      .reduce((acc, key) => [...acc, { fieldName: key }], []);
+    const formattedLog = eventFormatter(event, fieldsToExpose, this.logFormat, this.logLimit);
 
-    const formattedEvent = eventFormatter(event, this.logFormat);
-
-    console.log(`${this.format(formattedEvent)}`); // eslint-disable-line no-console
+    // eslint-disable-next-line no-console
+    if (!formattedLog.chunked) console.log(`${this.format(formattedLog)}`);
+    // eslint-disable-next-line no-console
+    else formattedLog.chunks.map(chunk => console.log(`${this.format(chunk)}`));
   }
 
   /** @private */
-  shouldSuppressOutput(outputType) {
-    return [
+  shouldSuppressOutput(message, outputType) {
+    // force enable log if flipLevelPattern is matched over message
+    const flipLog = this.flipLevelPattern
+    && stringify(message).match(new RegExp(this.flipLevelPattern));
+
+    return (!flipLog) && [
       logLevelFilter({ logLevel: this.logLevel, outputType }),
       isEnabled(this.namespace, this.logPatterns),
     ].some(response => response !== true);
@@ -216,11 +213,7 @@ class Logger {
    * or an instance without contextual information if there is no active domain.
    */
   static current() {
-    if (!domain.active) {
-      return new Logger();
-    }
-
-    return domain.active.logger;
+    return (!domain.active) ? new Logger() : domain.active.logger;
   }
 }
 

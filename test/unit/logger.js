@@ -1,19 +1,17 @@
-const assert = require('assert').strict;
+const assert = require('assert');
 const { spy } = require('sinon');
 const { lorem, random } = require('faker');
 const domain = require('domain');
+const asyncLocalStorage = require('async-local-storage');
 
 const Logger = require('../../src/logger');
 const loggerLevels = require('../../src/levels');
-
-// TODO: Make it better
-// TODO: Cover missing functions
 
 function generateLoggerAttributes() {
   return {
     loggerContext: lorem.word(),
     loggerLogLevel: random.objectElement(loggerLevels),
-    loggerLogLimit: random.number(),
+    loggerLogLimit: random.number({ max: 7000, min: 5000 }),
     loggerNamespace: lorem.word(),
     loggerPattern: lorem.word(),
   };
@@ -41,7 +39,6 @@ describe('Logger', () => {
       return [logger, spy(logger, 'format')];
     }
 
-
     it('return log in graylog format when logFormat is graylog', () => {
       const [logger, formatSpy] = createLoggerWithLogFormat('graylog');
       const message = lorem.sentence();
@@ -52,15 +49,54 @@ describe('Logger', () => {
 
       assert.equal(event.log_message, message);
     });
+
+    it('return chunked logs in graylog format', () => {
+      const [logger] = createLoggerWithLogFormat('graylog');
+      const message = ''.padEnd(8000, 'x');
+
+      const consoleSpy = spy(global.console, 'log');
+
+      logger.info(message);
+
+      const events = consoleSpy.getCalls();
+
+      assert.ok(events.every(event => event.lastArg.includes('chunk')));
+    });
   });
+
+  context('with local storage arguments', () => {
+    const setActiveScope = () => new Promise((resolve) => {
+      asyncLocalStorage.enable();
+      resolve();
+    });
+
+    it('return log arguments passed to async local storage', async () => {
+      await setActiveScope();
+
+      asyncLocalStorage.scope();
+
+      const expectedFakeArgs = {
+        fakeAction: 'fakeActionValue',
+        fakeEntity: 'fakeEntityValue',
+      };
+
+      Logger.current().setArguments(expectedFakeArgs);
+
+      const fakeArgs = asyncLocalStorage.get('logArguments');
+
+      assert.equal(fakeArgs, expectedFakeArgs);
+    });
+  });
+
   context('suppressing output via log level', () => {
-    function createLoggerWithLogLevel(logLevel) {
+    function createLoggerWithLogLevel(logLevel, extraParameters = {}) {
       const logger = new Logger({
         context: {},
         logLevel,
         logLimit: 7000,
         logPatterns: '*',
         namespace: '',
+        ...extraParameters,
       });
 
       return [logger, spy(logger, 'format')];
@@ -106,6 +142,35 @@ describe('Logger', () => {
       loggerMethods.forEach(method => infoLevelLogger[method](lorem.sentence()));
 
       assert.equal(loggerFormatSpy.callCount, 1);
+    });
+
+    it('flip suppresses debug and error calls', () => {
+      const [errorLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.warn, {
+        flipLevelPattern: 'should log ever',
+      });
+
+      loggerMethods.forEach(method => errorLevelLogger[method]({ flip: 'should log ever' }));
+
+      assert.equal(loggerFormatSpy.callCount, 4);
+    });
+  });
+
+  context('creating an instance of logger with child namespace', () => {
+    it('returns logger instance with child namespace', () => {
+      const loggerNamespace = lorem.word();
+      const loggerChildNamespace = lorem.word();
+      const expectedNamespace = `${loggerNamespace}:/${loggerChildNamespace}`;
+
+      const domainLogger = new Logger({ namespace: loggerNamespace });
+      const currentDomain = domain.create();
+
+      currentDomain.logger = domainLogger;
+
+      currentDomain.run(() => {
+        const childNamespace = Logger.current().createChildLogger(loggerChildNamespace);
+
+        assert.equal(childNamespace.namespace, expectedNamespace);
+      });
     });
   });
 

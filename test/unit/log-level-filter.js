@@ -1,4 +1,4 @@
-const assert = require('assert').strict;
+const assert = require('assert');
 const { lorem } = require('faker');
 
 const logLevelFilter = require('../../src/log-level-filter');

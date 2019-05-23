@@ -1,8 +1,5 @@
 const os = require('os');
-const sizeof = require('object-sizeof');
-const stringify = require('json-stringify-safe');
-
-const loggerLevels = require('./levels');
+const asyncLocalStorage = require('async-local-storage');
 
 module.exports = class Serializer {
   constructor(contextData, namespace, logLimit) {
@@ -15,23 +12,7 @@ module.exports = class Serializer {
     const timestamp = new Date().toISOString();
     const event = this.event(message, additionalArguments, level, timestamp);
 
-    if (level !== loggerLevels.debug && sizeof(stringify(event)) > this.logLimit) {
-      return this.truncatedEvent(level, timestamp);
-    }
-
     return event;
-  }
-
-  /**
-   *  @private
-   */
-  truncatedEvent(level, timestamp) {
-    return {
-      ...this.contextData,
-      level,
-      timestamp,
-      truncated: true,
-    };
   }
 
   /**
@@ -39,12 +20,13 @@ module.exports = class Serializer {
    */
   event(message, additionalArguments, level, timestamp) {
     return {
+      ...asyncLocalStorage.get('logArguments'),
       ...additionalArguments,
       ...this.contextData,
       level,
       message,
-      timestamp,
       namespace: this.namespace,
+      timestamp,
       uptime: os.uptime(),
     };
   }

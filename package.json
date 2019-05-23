@@ -27,7 +27,7 @@
     "lint:fix": "eslint --fix src/ test/",
     "test": "mocha --recursive",
     "test:watch": "mocha --recursive --watch",
-    "test:coverage": "nyc mocha --recursive",
+    "test:coverage": "nyc --reporter=text mocha --recursive",
     "package": "bash package.sh"
   },
   "nyc": {
@@ -53,9 +53,9 @@
     }
   },
   "dependencies": {
+    "async-local-storage": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.10",
-    "object-sizeof": "^1.3.0",
     "prettyjson": "^1.2.1"
   },
   "contributors": [
