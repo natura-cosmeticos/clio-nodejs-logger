@@ -89,13 +89,14 @@ describe('Logger', () => {
   });
 
   context('suppressing output via log level', () => {
-    function createLoggerWithLogLevel(logLevel) {
+    function createLoggerWithLogLevel(logLevel, extraParameters = {}) {
       const logger = new Logger({
         context: {},
         logLevel,
         logLimit: 7000,
         logPatterns: '*',
         namespace: '',
+        ...extraParameters,
       });
 
       return [logger, spy(logger, 'format')];
@@ -141,6 +142,16 @@ describe('Logger', () => {
       loggerMethods.forEach(method => infoLevelLogger[method](lorem.sentence()));
 
       assert.equal(loggerFormatSpy.callCount, 1);
+    });
+
+    it('flip suppresses debug and error calls', () => {
+      const [errorLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.warn, {
+        flipLevelPattern: 'should log ever',
+      });
+
+      loggerMethods.forEach(method => errorLevelLogger[method]({ flip: 'should log ever' }));
+
+      assert.equal(loggerFormatSpy.callCount, 4);
     });
   });
 
