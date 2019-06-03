@@ -44,7 +44,7 @@ const chunkMessage = (messageHeader, message, logLimit) => {
   const chunks = [];
 
   for (let chunk = 0; chunk < chunkMeasure.chunks; chunk += 1) {
-    chunks.push(stringify({ ...header, chunk: `${chunk}/${chunkMeasure.chunks}` })
+    chunks.push(stringify({ ...header, chunk: `${chunk + 1}/${chunkMeasure.chunks}` })
       .replace('"@"', new TextDecoder()
         .decode(encodedMessage.slice(chunk * logLimit, (chunk + 1) * logLimit))));
   }
