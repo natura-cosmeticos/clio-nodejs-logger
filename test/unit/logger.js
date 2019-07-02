@@ -102,7 +102,7 @@ describe('Logger', () => {
       return [logger, spy(logger, 'format')];
     }
 
-    const loggerMethods = ['debug', 'error', 'warn', 'info'];
+    const loggerMethods = ['debug', 'info', 'warn', 'error'];
 
     it('does not suppress any calls', () => {
       const [debugLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.debug);
@@ -113,22 +113,14 @@ describe('Logger', () => {
     });
 
     it('suppresses debug calls', () => {
-      const [errorLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.error);
+      const [errorLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.log);
 
       loggerMethods.forEach(method => errorLevelLogger[method](lorem.sentence()));
 
       assert.equal(loggerFormatSpy.callCount, 3);
     });
 
-    it('suppresses as log level error if only logPattern is given', () => {
-      const logger = new Logger({ logPatterns: '*' });
-      const loggerFormatSpy = spy(logger, 'format');
-
-      loggerMethods.forEach(method => logger[method](lorem.sentence()));
-      assert.equal(loggerFormatSpy.callCount, 3);
-    });
-
-    it('suppresses debug and error calls', () => {
+    it('suppresses debug and info calls', () => {
       const [errorLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.warn);
 
       loggerMethods.forEach(method => errorLevelLogger[method](lorem.sentence()));
@@ -136,12 +128,20 @@ describe('Logger', () => {
       assert.equal(loggerFormatSpy.callCount, 2);
     });
 
-    it('suppresses all but log/info calls', () => {
-      const [infoLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.log);
+    it('suppresses all but error calls', () => {
+      const [infoLevelLogger, loggerFormatSpy] = createLoggerWithLogLevel(loggerLevels.error);
 
       loggerMethods.forEach(method => infoLevelLogger[method](lorem.sentence()));
 
       assert.equal(loggerFormatSpy.callCount, 1);
+    });
+
+    it('suppresses as log level error if only logPattern is given', () => {
+      const logger = new Logger({ logPatterns: '*', namespace: 'a' });
+      const loggerFormatSpy = spy(logger, 'format');
+
+      loggerMethods.forEach(method => logger[method](lorem.sentence()));
+      assert.equal(loggerFormatSpy.callCount, 1 );
     });
 
     it('flip suppresses debug and error calls', () => {
