@@ -23,10 +23,10 @@ describe('Log Level Filter', () => {
       assert.equal(logLevelFilter({ logLevel: ERROR, outputType: DEBUG }), false);
     });
 
-    it('returns true for error, warn and info output types', () => {
+    it('returns true for error output type', () => {
       const levelErrorCheck = outputType => logLevelFilter({ logLevel: ERROR, outputType });
 
-      assert.equal([ERROR, WARN, LOG].every(levelErrorCheck), true);
+      assert.equal([ERROR].every(levelErrorCheck), true);
     });
   });
 
