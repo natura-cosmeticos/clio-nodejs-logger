@@ -43,7 +43,7 @@ describe('Logger', () => {
       const [logger, formatSpy] = createLoggerWithLogFormat('graylog');
       const message = lorem.sentence();
 
-      logger.info(message);
+      logger.error(message);
 
       const event = formatSpy.getCall(0).args[0];
 
@@ -141,7 +141,7 @@ describe('Logger', () => {
       const loggerFormatSpy = spy(logger, 'format');
 
       loggerMethods.forEach(method => logger[method](lorem.sentence()));
-      assert.equal(loggerFormatSpy.callCount, 1 );
+      assert.equal(loggerFormatSpy.callCount, 1);
     });
 
     it('flip suppresses debug and error calls', () => {
