@@ -1,6 +1,8 @@
+/* eslint-disable max-lines */
 const domain = require('domain');
 const stringify = require('json-stringify-safe');
 const asyncLocalStorage = require('async-local-storage');
+const localStorage = require('async-local-storage');
 const { prettyPrint } = require('./formatters');
 const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');
@@ -151,6 +153,14 @@ class Logger {
    */
   error(message, additionalArguments = {}) {
     this.output(message, additionalArguments, loggerLevels.error);
+
+    const rootSpan = localStorage.get('rootSpan');
+
+    if (rootSpan) {
+      rootSpan.error(message, {
+        ...additionalArguments,
+      });
+    }
   }
 
   /**
@@ -200,7 +210,7 @@ class Logger {
   shouldSuppressOutput(message, outputType) {
     // force enable log if flipLevelPattern is matched over message
     const flipLog = this.flipLevelPattern
-    && stringify(message).match(new RegExp(this.flipLevelPattern));
+      && stringify(message).match(new RegExp(this.flipLevelPattern));
 
     return (!flipLog) && [
       logLevelFilter({ logLevel: this.logLevel, outputType }),
