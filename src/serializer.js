@@ -1,5 +1,5 @@
 const os = require('os');
-const asyncLocalStorage = require('async-local-storage');
+const { Util: { AsyncHooksStorage } } = require('@naturacosmeticos/node-base');
 
 module.exports = class Serializer {
   constructor(contextData, namespace, logLimit) {
@@ -20,7 +20,7 @@ module.exports = class Serializer {
    */
   event(message, additionalArguments, level, timestamp) {
     return {
-      ...asyncLocalStorage.get('logArguments'),
+      ...asyncHooksStorage.getEntry('logArguments'),
       ...additionalArguments,
       ...this.contextData,
       level,
