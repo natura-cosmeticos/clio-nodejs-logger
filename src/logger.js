@@ -1,6 +1,6 @@
 const domain = require('domain');
 const stringify = require('json-stringify-safe');
-const { Util: { AsyncHooksStorage } } = require('@naturacosmeticos/node-base');
+const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 const { prettyPrint } = require('./formatters');
 const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');

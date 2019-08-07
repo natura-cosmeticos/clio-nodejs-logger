@@ -1,4 +1,4 @@
-const { Util: { AsyncHooksStorage } } = require('@naturacosmeticos/node-base');
+const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 const assert = require('assert');
 const { spy } = require('sinon');
 const { lorem, random } = require('faker');

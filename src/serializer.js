@@ -1,5 +1,5 @@
 const os = require('os');
-const { Util: { AsyncHooksStorage } } = require('@naturacosmeticos/node-base');
+const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 
 module.exports = class Serializer {
   constructor(contextData, namespace, logLimit) {

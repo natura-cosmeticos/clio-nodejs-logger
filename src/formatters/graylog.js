@@ -1,5 +1,5 @@
 const stringify = require('json-stringify-safe');
-const { Util: { AsyncHooksStorage } } = require('@naturacosmeticos/node-base');
+const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 const { TextEncoder, TextDecoder } = require('util');
 
 const exposeFields = (event, fieldsToExpose) => {
