@@ -1,11 +1,12 @@
+const { Util: { AsyncHooksStorage } } = require('@naturacosmeticos/node-base');
 const assert = require('assert');
 const { spy } = require('sinon');
 const { lorem, random } = require('faker');
 const domain = require('domain');
-const { Util: { AsyncHooksStorage } } = require('@naturacosmeticos/clio-nodejs-logger');
 
 const Logger = require('../../src/logger');
 const loggerLevels = require('../../src/levels');
+
 
 function generateLoggerAttributes() {
   return {
@@ -65,9 +66,7 @@ describe('Logger', () => {
   });
 
   context('with local storage arguments', () => {
-    it('return log arguments passed to async local storage', async () => {
-      AsyncHooksStorage.enable();
-
+    it('return log arguments passed to async hooks storage', () => {
       const expectedFakeArgs = {
         fakeAction: 'fakeActionValue',
         fakeEntity: 'fakeEntityValue',

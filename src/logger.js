@@ -8,6 +8,8 @@ const Serializer = require('./serializer');
 const loggerLevels = require('./levels');
 const logLevelFilter = require('./log-level-filter');
 
+AsyncHooksStorage.enable();
+
 /**
  * default values for Logger instance
  * @private
@@ -99,6 +101,7 @@ class Logger {
       namespace,
       serializer: new Serializer({ context, name: process.env.APP_NAME }, namespace, logLimit),
     });
+    AsyncHooksStorage.newEntry('Logger');
   }
 
   /**
@@ -216,7 +219,5 @@ class Logger {
     return (!domain.active) ? new Logger() : domain.active.logger;
   }
 }
-
-AsyncHooksStorage.enable();
 
 module.exports = Logger;

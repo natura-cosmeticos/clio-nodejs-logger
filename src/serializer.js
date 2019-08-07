@@ -20,7 +20,7 @@ module.exports = class Serializer {
    */
   event(message, additionalArguments, level, timestamp) {
     return {
-      ...asyncHooksStorage.getEntry('logArguments'),
+      ...AsyncHooksStorage.getEntry('logArguments'),
       ...additionalArguments,
       ...this.contextData,
       level,
