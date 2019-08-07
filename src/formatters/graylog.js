@@ -17,7 +17,7 @@ const exposeFields = (event, fieldsToExpose) => {
     return accumulatedResult;
   }, {});
 
-  return { correlationId: AsyncHooksStorage.getEntry('correlationId'), ...exposed };
+  return { correlationId: AsyncHooksStorage.getEntry('correlation-id'), ...exposed };
 };
 
 const measureChunkMessage = (messageHeader, message, logLimit) => {

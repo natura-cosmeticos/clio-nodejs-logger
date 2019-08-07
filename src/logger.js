@@ -9,6 +9,7 @@ const loggerLevels = require('./levels');
 const logLevelFilter = require('./log-level-filter');
 
 AsyncHooksStorage.enable();
+AsyncHooksStorage.newEntry('Logger');
 
 /**
  * default values for Logger instance
@@ -101,7 +102,6 @@ class Logger {
       namespace,
       serializer: new Serializer({ context, name: process.env.APP_NAME }, namespace, logLimit),
     });
-    AsyncHooksStorage.newEntry('Logger');
   }
 
   /**
