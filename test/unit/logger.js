@@ -1,11 +1,12 @@
+const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 const assert = require('assert');
 const { spy } = require('sinon');
 const { lorem, random } = require('faker');
 const domain = require('domain');
-const asyncLocalStorage = require('async-local-storage');
 
 const Logger = require('../../src/logger');
 const loggerLevels = require('../../src/levels');
+
 
 function generateLoggerAttributes() {
   return {
@@ -65,16 +66,7 @@ describe('Logger', () => {
   });
 
   context('with local storage arguments', () => {
-    const setActiveScope = () => new Promise((resolve) => {
-      asyncLocalStorage.enable();
-      resolve();
-    });
-
-    it('return log arguments passed to async local storage', async () => {
-      await setActiveScope();
-
-      asyncLocalStorage.scope();
-
+    it('return log arguments passed to async hooks storage', () => {
       const expectedFakeArgs = {
         fakeAction: 'fakeActionValue',
         fakeEntity: 'fakeEntityValue',
@@ -82,7 +74,7 @@ describe('Logger', () => {
 
       Logger.current().setArguments(expectedFakeArgs);
 
-      const fakeArgs = asyncLocalStorage.get('logArguments');
+      const fakeArgs = AsyncHooksStorage.getEntry('logArguments');
 
       assert.equal(fakeArgs, expectedFakeArgs);
     });

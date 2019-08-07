@@ -1,12 +1,15 @@
 const domain = require('domain');
 const stringify = require('json-stringify-safe');
-const asyncLocalStorage = require('async-local-storage');
+const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 const { prettyPrint } = require('./formatters');
 const eventFormatter = require('./event-formatter');
 const isEnabled = require('./is-enabled');
 const Serializer = require('./serializer');
 const loggerLevels = require('./levels');
 const logLevelFilter = require('./log-level-filter');
+
+AsyncHooksStorage.enable();
+AsyncHooksStorage.newEntry('Logger');
 
 /**
  * default values for Logger instance
@@ -123,7 +126,7 @@ class Logger {
    * Sets value to a transactional context variable
    */
   setArguments(value) {
-    asyncLocalStorage.set('logArguments', value);
+    AsyncHooksStorage.setEntry('logArguments', value);
   }
 
   /**
@@ -186,7 +189,7 @@ class Logger {
     const event = this.serializer.serialize(
       message, additionalArguments, outputType, this.contextData,
     );
-    const fieldsToExpose = Object.keys(asyncLocalStorage.get('logArguments') || {})
+    const fieldsToExpose = Object.keys(AsyncHooksStorage.getEntry('logArguments') || {})
       .reduce((acc, key) => [...acc, { fieldName: key }], []);
     const formattedLog = eventFormatter(event, fieldsToExpose, this.logFormat, this.logLimit);
 
