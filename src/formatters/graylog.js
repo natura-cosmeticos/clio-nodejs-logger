@@ -1,5 +1,4 @@
 const stringify = require('json-stringify-safe');
-const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 const { TextEncoder, TextDecoder } = require('util');
 
 const exposeFields = (event, fieldsToExpose) => {
@@ -17,7 +16,7 @@ const exposeFields = (event, fieldsToExpose) => {
     return accumulatedResult;
   }, {});
 
-  return { correlationId: AsyncHooksStorage.getEntry('correlation-id'), ...exposed };
+  return exposed;
 };
 
 const measureChunkMessage = (messageHeader, message, logLimit) => {
