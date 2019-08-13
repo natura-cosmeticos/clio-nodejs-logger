@@ -8,7 +8,6 @@ describe('graylog formatter', () => {
 
   before(() => {
     emptyOutput = {
-      correlationId: null,
       log_level: undefined,
       log_message: undefined,
       log_timestamp: undefined,
@@ -69,7 +68,6 @@ describe('graylog formatter', () => {
     const additionalAttributes = faker.random.objectElement();
     const expectedResult = {
       ...additionalAttributes,
-      correlationId: null,
       log_level: level,
       log_message: message,
       log_timestamp: timestamp,
