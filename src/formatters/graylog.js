@@ -1,9 +1,44 @@
 const stringify = require('json-stringify-safe');
 const { TextEncoder, TextDecoder } = require('util');
+const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
+const uuid = require('uuid/v4');
+
+const correlationIdName = 'correlation-id';
+
+// eslint-disable-next-line max-lines-per-function
+const hasProperty = (input, targetProperty) => {
+  let hasTargetProperty = false;
+
+  const iterateObject = (inputObj) => {
+    const keys = Object.keys(inputObj);
+
+    for (let counter = 0; counter < keys.length; counter += 1) {
+      const currentKey = keys[counter];
+
+      if (currentKey === targetProperty) {
+        hasTargetProperty = true;
+        break;
+      }
+
+      if (typeof inputObj[currentKey] === 'object') iterateObject(inputObj[currentKey]);
+    }
+  };
+
+  iterateObject(input);
+
+  return hasTargetProperty;
+};
+
+const getCorrelationId = () => {
+  const storedCorrelationId = AsyncHooksStorage.getEntry(correlationIdName);
+
+  if (!storedCorrelationId) return `miss_${uuid()}`;
+
+  return storedCorrelationId;
+};
 
 const exposeFields = (event, fieldsToExpose) => {
   const json = stringify(event);
-
 
   const exposed = fieldsToExpose.reduce((resultantFields, field) => {
     const regExp = new RegExp(`(?:.*${field.fieldName}"?[:\\s]*["']?)([^"']*)(.*)`);
@@ -16,7 +51,9 @@ const exposeFields = (event, fieldsToExpose) => {
     return accumulatedResult;
   }, {});
 
-  return exposed;
+  if (hasProperty(exposed, correlationIdName)) return exposed;
+
+  return { correlationId: getCorrelationId(), ...exposed };
 };
 
 const measureChunkMessage = (messageHeader, message, logLimit) => {

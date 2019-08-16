@@ -20,8 +20,11 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog();
 
+    const { correlationId, ...result } = formattedEvent;
+
     // then
-    assert.deepEqual(formattedEvent, expectedResult);
+    assert.equal(correlationId.indexOf('miss_'), 0);
+    assert.deepEqual(result, expectedResult);
   });
 
   it('transform level into log_level', () => {
@@ -32,8 +35,11 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
+    const { correlationId, ...result } = formattedEvent;
+
     // then
-    assert.deepEqual(formattedEvent, expectedResult);
+    assert.equal(correlationId.indexOf('miss_'), 0);
+    assert.deepEqual(result, expectedResult);
   });
 
   it('transform message into log_message', () => {
@@ -44,8 +50,11 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
+    const { correlationId, ...result } = formattedEvent;
+
     // then
-    assert.deepEqual(formattedEvent, expectedResult);
+    assert.equal(correlationId.indexOf('miss_'), 0);
+    assert.deepEqual(result, expectedResult);
   });
 
   it('transform timestamp into log_message', () => {
@@ -56,8 +65,11 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
+    const { correlationId, ...result } = formattedEvent;
+
     // then
-    assert.deepEqual(formattedEvent, expectedResult);
+    assert.equal(correlationId.indexOf('miss_'), 0);
+    assert.deepEqual(result, expectedResult);
   });
 
   it('keep other attributes and add log prefix to level, message and timestamp attributes', () => {
@@ -76,8 +88,11 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
+    const { correlationId, ...result } = formattedEvent;
+
     // then
-    assert.deepEqual(formattedEvent, expectedResult);
+    assert.equal(correlationId.indexOf('miss_'), 0);
+    assert.deepEqual(result, expectedResult);
   });
 
   it('return object with chunked property equal true and an array of the chunked data', () => {
@@ -97,13 +112,16 @@ describe('graylog formatter', () => {
 
   it('expose fields from log message', () => {
     // given
+    const correlationId = faker.random.uuid();
     const message = {
       actionArg: 'fakeActionValue',
+      correlationId,
       entityArg: 'fakeEntityValue',
     };
     const fieldsToExpose = [
       { fieldName: 'actionArg' },
       { fieldName: 'entityArg' },
+      { fieldName: 'correlationId' },
     ];
 
     const event = { message };

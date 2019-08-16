@@ -56,7 +56,8 @@
     "@naturacosmeticos/async-hooks-storage": "^1.0.0",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.13",
-    "prettyjson": "^1.2.1"
+    "prettyjson": "^1.2.1",
+    "uuid": "^3.3.2"
   },
   "contributors": [
     "Bruno Cartolari <cartola@vizir.com.br>",
