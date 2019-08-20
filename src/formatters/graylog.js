@@ -31,7 +31,7 @@ const exposeFields = (event, fieldsToExpose) => {
     return accumulatedResult;
   }, {});
 
-  if (hasCorrelationId(exposed)) return exposed;
+  if (hasCorrelationId(exposed) || hasCorrelationId(event)) return exposed;
 
   return { correlationId: getCorrelationId(), ...exposed };
 };
