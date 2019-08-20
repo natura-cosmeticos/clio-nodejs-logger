@@ -2,32 +2,12 @@ const stringify = require('json-stringify-safe');
 const { TextEncoder, TextDecoder } = require('util');
 const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
 const uuid = require('uuid/v4');
+const _ = require('lodash');
 
 const correlationIdName = 'correlation-id';
 
-// eslint-disable-next-line max-lines-per-function
-const hasProperty = (input, targetProperty) => {
-  let hasTargetProperty = false;
-
-  const iterateObject = (inputObj) => {
-    const keys = Object.keys(inputObj);
-
-    for (let counter = 0; counter < keys.length; counter += 1) {
-      const currentKey = keys[counter];
-
-      if (currentKey === targetProperty) {
-        hasTargetProperty = true;
-        break;
-      }
-
-      if (typeof inputObj[currentKey] === 'object') iterateObject(inputObj[currentKey]);
-    }
-  };
-
-  iterateObject(input);
-
-  return hasTargetProperty;
-};
+const hasCorrelationId = inputObject => _.has(inputObject, 'correlationId')
+  || _.has(inputObject, 'context.correlationId');
 
 const getCorrelationId = () => {
   const storedCorrelationId = AsyncHooksStorage.getEntry(correlationIdName);
@@ -51,7 +31,7 @@ const exposeFields = (event, fieldsToExpose) => {
     return accumulatedResult;
   }, {});
 
-  if (hasProperty(exposed, correlationIdName)) return exposed;
+  if (hasCorrelationId(exposed)) return exposed;
 
   return { correlationId: getCorrelationId(), ...exposed };
 };
