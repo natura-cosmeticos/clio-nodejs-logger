@@ -2,15 +2,24 @@
 # yarn lockfile v1
 
 
-"@naturacosmeticos/clio-nodejs-logger@^1.2.5":
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/@naturacosmeticos/clio-nodejs-logger/-/clio-nodejs-logger-1.2.5.tgz#52452d81e788e7a3ce6647c57d9714aa427f863f"
-  integrity sha512-y69cPuP5aZ1XE5LVBTEtmFIyjidD38fjmwwPzlKbs3aNHR7pvc4oQTQrjChovCInGMh5C/0c8q3ZPLlalb6+IQ==
+"@naturacosmeticos/async-hooks-storage@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@naturacosmeticos/async-hooks-storage/-/async-hooks-storage-1.0.0.tgz#957117ce72c95bdff5ec0ca29eb4e334d8fbcbf4"
+  integrity sha512-Xp5KhGiRxnGMV8/mT5pUV/q6B6mQgqC8fHl3R8qBdxUWCbvHTKADBW6P2/1Rz2RxeJA6Q8Mp4pZJw+XYShk5qA==
   dependencies:
+    object-sizeof "^1.4.0"
+    uuid "^3.3.2"
+
+"@naturacosmeticos/clio-nodejs-logger@^2.0.0":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@naturacosmeticos/clio-nodejs-logger/-/clio-nodejs-logger-2.0.2.tgz#11d694cd218e861ce65ee194932666c4acbae79a"
+  integrity sha512-aAIKCCJu7HZ/ZpIRcS1inwgsjpiSq5u3bI00bhC/o7wacJJb+XLYMXeT0sf9DIAtVufdoA5g5W9HjCAH6mjf4Q==
+  dependencies:
+    "@naturacosmeticos/async-hooks-storage" "^1.0.0"
     json-stringify-safe "^5.0.1"
-    lodash "^4.17.10"
-    object-sizeof "^1.3.0"
+    lodash "^4.17.13"
     prettyjson "^1.2.1"
+    uuid "^3.3.2"
 
 accepts@~1.3.5:
   version "1.3.5"
@@ -46,10 +55,10 @@ body-parser@1.18.3:
     raw-body "2.3.3"
     type-is "~1.6.16"
 
-buffer@^5.0.6:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.2.1.tgz#dd57fa0f109ac59c602479044dca7b8b3d0b71d6"
-  integrity sha512-c+Ko0loDaFfuPWiL02ls9Xd3GO3cPVmUobQ6t3rXNUk304u6hGq+8N/kFi+QEIKhzK3uwolVhLzszmfLmMLnqg==
+buffer@^5.5.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.6.0.tgz#a31749dc7d81d84db08abf937b6b8c4033f62786"
+  integrity sha512-/gDYp/UtU0eA1ys8bOs9J6a+E/KWIY+DZ+Q2WESNUA0jFRsJOc0SNUO6xJ5SGA1xueg3NL65W6s+NY5l9cunuw==
   dependencies:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
@@ -217,10 +226,15 @@ json-stringify-safe@^5.0.1:
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
   integrity sha1-Epai1Y/UXxmg9s4B1lcB4sc1tus=
 
-lodash@^4.17.10, lodash@^4.17.11:
+lodash@^4.17.11:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
+
+lodash@^4.17.13:
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
+  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -269,12 +283,12 @@ negotiator@0.6.1:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
   integrity sha1-KzJxhOiZIQEXeyhWP7XnECrNDKk=
 
-object-sizeof@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/object-sizeof/-/object-sizeof-1.3.0.tgz#1f0bdcd911556b51520a721f3e8d00aab2f9ba57"
-  integrity sha512-MFtGoPYsyNATBn8kSugxLyhst7ID4D2/nYDrPdo4kDS+AAE4cHFvDMjQPB5jhO5fm5c56CnyEzrLQgN0OxVtsw==
+object-sizeof@^1.4.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/object-sizeof/-/object-sizeof-1.6.0.tgz#847d0b67d96cbf1f8dda63c58ad3d8fbd1adeba8"
+  integrity sha512-Z+suoK94o8WjEMYItJjpPyG6I78STcI1CxM7rjxM8LhbgegAY+jhGSFY0c5Ez20LXgDGtyKzYZNXHpDyr6hj8Q==
   dependencies:
-    buffer "^5.0.6"
+    buffer "^5.5.0"
 
 on-finished@~2.3.0:
   version "2.3.0"
