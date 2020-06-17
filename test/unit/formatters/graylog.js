@@ -20,10 +20,9 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog();
 
-    const { correlationId, ...result } = formattedEvent;
+    const { ...result } = formattedEvent;
 
     // then
-    assert.equal(correlationId.indexOf('miss_'), 0);
     assert.deepEqual(result, expectedResult);
   });
 
@@ -35,10 +34,9 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
-    const { correlationId, ...result } = formattedEvent;
+    const { ...result } = formattedEvent;
 
     // then
-    assert.equal(correlationId.indexOf('miss_'), 0);
     assert.deepEqual(result, expectedResult);
   });
 
@@ -50,10 +48,9 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
-    const { correlationId, ...result } = formattedEvent;
+    const { ...result } = formattedEvent;
 
     // then
-    assert.equal(correlationId.indexOf('miss_'), 0);
     assert.deepEqual(result, expectedResult);
   });
 
@@ -65,10 +62,9 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
-    const { correlationId, ...result } = formattedEvent;
+    const { ...result } = formattedEvent;
 
     // then
-    assert.equal(correlationId.indexOf('miss_'), 0);
     assert.deepEqual(result, expectedResult);
   });
 
@@ -88,10 +84,9 @@ describe('graylog formatter', () => {
     // when
     const formattedEvent = graylog(event);
 
-    const { correlationId, ...result } = formattedEvent;
+    const { ...result } = formattedEvent;
 
     // then
-    assert.equal(correlationId.indexOf('miss_'), 0);
     assert.deepEqual(result, expectedResult);
   });
 
@@ -112,16 +107,13 @@ describe('graylog formatter', () => {
 
   it('expose fields from log message', () => {
     // given
-    const correlationId = faker.random.uuid();
     const message = {
       actionArg: 'fakeActionValue',
-      correlationId,
       entityArg: 'fakeEntityValue',
     };
     const fieldsToExpose = [
       { fieldName: 'actionArg' },
       { fieldName: 'entityArg' },
-      { fieldName: 'correlationId' },
     ];
 
     const event = { message };

@@ -1,21 +1,5 @@
 const stringify = require('json-stringify-safe');
 const { TextEncoder, TextDecoder } = require('util');
-const AsyncHooksStorage = require('@naturacosmeticos/async-hooks-storage');
-const uuid = require('uuid/v4');
-const _ = require('lodash');
-
-const correlationIdName = 'correlation-id';
-
-const hasCorrelationId = inputObject => _.has(inputObject, 'correlationId')
-  || _.has(inputObject, 'context.correlationId');
-
-const getCorrelationId = () => {
-  const storedCorrelationId = AsyncHooksStorage.getEntry(correlationIdName);
-
-  if (!storedCorrelationId) return `miss_${uuid()}`;
-
-  return storedCorrelationId;
-};
 
 const exposeFields = (event, fieldsToExpose) => {
   const json = stringify(event);
@@ -31,9 +15,7 @@ const exposeFields = (event, fieldsToExpose) => {
     return accumulatedResult;
   }, {});
 
-  if (hasCorrelationId(event)) return exposed;
-
-  return { correlationId: getCorrelationId(), ...exposed };
+  return exposed;
 };
 
 const measureChunkMessage = (messageHeader, message, logLimit) => {

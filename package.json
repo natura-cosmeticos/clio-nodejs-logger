@@ -2,7 +2,7 @@
   "main": "index.js",
   "name": "@naturacosmeticos/clio-nodejs-logger",
   "author": "Natura Cosméticos <TDDAArquitetura@natura.net>",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "devDependencies": {
     "@naturacosmeticos/eslint-config-natura": "^1.0.0",
     "esdoc": "^1.1.0",
@@ -59,7 +59,7 @@
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.13",
     "prettyjson": "^1.2.1",
-    "uuid": "^3.3.2",
+    "uuid": "^8.0.0",
     "snyk": "^1.316.1"
   },
   "contributors": [
