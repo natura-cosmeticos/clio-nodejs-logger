@@ -6,7 +6,7 @@
   "dependencies": {
     "@naturacosmeticos/clio-nodejs-logger": "^1.2.5",
     "express": "^4.16.4",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.16",
     "uuid": "^8.0.0"
   }
 }
