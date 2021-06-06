@@ -9,7 +9,7 @@
     "esdoc-ecmascript-proposal-plugin": "1.0.0",
     "esdoc-node": "1.0.5",
     "esdoc-standard-plugin": "1.0.0",
-    "eslint": "5.16.0",
+    "eslint": "7.28.0",
     "eslint-plugin-import": "2.17.2",
     "faker": "4.1.0",
     "husky": "1.3.1",
