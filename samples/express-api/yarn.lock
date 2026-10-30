@@ -3,9 +3,7 @@
 
 
 "@naturacosmeticos/clio-nodejs-logger@^1.2.5":
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/@naturacosmeticos/clio-nodejs-logger/-/clio-nodejs-logger-1.2.5.tgz#52452d81e788e7a3ce6647c57d9714aa427f863f"
-  integrity sha512-y69cPuP5aZ1XE5LVBTEtmFIyjidD38fjmwwPzlKbs3aNHR7pvc4oQTQrjChovCInGMh5C/0c8q3ZPLlalb6+IQ==
+  version "1.3.2"
   dependencies:
     json-stringify-safe "^5.0.1"
     lodash "^4.17.10"
